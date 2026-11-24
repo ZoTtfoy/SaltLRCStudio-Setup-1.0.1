@@ -1,0 +1,828 @@
+/* SaltLRC Studio — Salt Player 风格深色主题
+   底色深炭青、青绿强调、圆角卡片、低对比分隔线。
+   布局类规则（网格列、splitter、媒体查询）与配色无关，勿随意改动。 */
+:root{
+  --bg:#141d23; --panel:#1b2830; --panel2:#22333b; --line:#2b3f47; --line2:#314750;
+  --text:#d8e6e1; --dim:#8fa8a1; --dim2:#7f9a92;
+  --accent:#3ecfa9; --accent-deep:#1f9c7d; --accent-ink:#eafff8;
+  --warn:#e0b568; --danger:#e57664;
+  /* 圆角、间距与阴影各只有一个刻度：界面只能用这些值。 */
+  --r-1:4px; --r-2:6px; --r-3:8px;
+  --sp-1:6px; --sp-2:10px; --sp-3:16px; --sp-4:24px;
+  --line-soft:#26404a; --hover:#2b424c;
+  --shadow-1:0 1px 2px rgba(0,0,0,.30);
+  --shadow-2:0 18px 60px rgba(0,0,0,.52);
+  /* 声明本页是深色：表单控件、媒体条、滚动条、焦点圈等原生部件都按深色绘制。
+     浅色主题下由 html[data-theme="light"] 改成 light。 */
+  color-scheme:dark;
+  font-family:Segoe UI,Microsoft YaHei,sans-serif;color:var(--text);background:var(--bg);font-size:13px;
+  --accent-hover:#26b390;  /* .button:hover */
+  --ai-bg:#2b3a4a;  /* #aiTranslate,#aiTranslateAll */
+  --ai-edge:#3d5468;  /* #aiTranslate,#aiTranslateAll */
+  --ai-hover:#35485c;  /* #aiTranslate:hover,#aiTranslateAll:hover */
+  --ai-ink:#cfe0ea;  /* #aiTranslate,#aiTranslateAll */
+  --bg-alertbar:#3a1e1e;  /* .alertBar */
+  --bg-alertrow-alertaction:#4a2622;  /* .alertRow .alertAction */
+  --bg-analysis:#1e2f37;  /* .analysis */
+  --bg-base:#2c4149;  /* ::-webkit-scrollbar */
+  --bg-hstep-now:#1f4a3c;  /* .hstep.now */
+  --bg-input:#131e25;  /* input,textarea、#saveResult code */
+  --bg-item:#1f2f37;  /* .item */
+  --bg-item-2:#243842;  /* .item:hover */
+  --bg-matchpanel:#1e3038;  /* #matchPanel、#saveResult */
+  --bg-nav:#18242b;  /* nav、.helpBox */
+  --bg-preview:#12333a;  /* #preview */
+  --bg-preview-2:#0f2b31;  /* #preview */
+  --bg-qrbox:#ffffff;  /* #qrBox */
+  --bg-rows-tr-activerow-td:rgba(62,207,169,0.09);  /* #rows tr.activeRow td */
+  --bg-rows-tr-activerow-textarea:#182b28;  /* #rows tr.activeRow textarea */
+  --bg-rows-tr-haserror-td:rgba(229,118,100,0.1);  /* #rows tr.hasError td */
+  --bg-rows-tr-td:rgba(62,207,169,0.05);  /* #rows tr:hover td */
+  --bg-scrolly:#15212a;  /* .scrolly、#overview */
+  --bg-secondary:#24363f;  /* .secondary、.wline */
+  --bg-songstrip:#0c2329;  /* .songstrip */
+  --bg-steps-li:#203039;  /* .steps li */
+  --bg-wavetip:#0c1c22;  /* #waveTip */
+  --bg-wline:#2b414b;  /* .wline:hover */
+  --bg-wordcell:#243740;  /* .wordCell */
+  --danger-edge:#7a3a34;  /* .alertBar、.alertRow .alertAction */
+  --danger-ink:#ffd9d2;  /* .alertRow、.alertRow .alertAction */
+  --danger-surface:#8f3a30;  /* #exit */
+  --edge-accent:#2f6a68;  /* #karaoke、#closeKaraoke */
+  --edge-hover:#35525c;  /* .item:hover */
+  --edge-hover-firm:#3d5a64;  /* button:hover,.button:hover */
+  --edge-item:#2a414b;  /* .item */
+  --edge-libbadge-missing:#5f5133;  /* .libBadge.missing */
+  --edge-libbadge-ok:#2b6b5c;  /* .libBadge.ok */
+  --edge-proposal:#263841;  /* .proposal、#queue .item */
+  --edge-soft:#2b4a44;  /* #matchPanel、#saveResult */
+  --edge-td:#223138;  /* td */
+  --edge-wavetip:#35525a;  /* #waveTip */
+  --fade-panel:rgba(27,40,48,0);  /* dialog.wordBox .dialogActions */
+  --head-1:#0f181d;  /* header */
+  --head-2:#122026;  /* header */
+  --ink-accent:#bfe0d8;  /* #karaoke、#closeKaraoke */
+  --ink-accent-soft:#6fd6b6;  /* #matchPanel h3、#saveResult strong */
+  --ink-brand:#5fae9c;  /* header small */
+  --ink-brand-soft:#57b39b;  /* h1 span */
+  --ink-button:#cfe0da;  /* button,.button,select、.secondary */
+  --ink-caption:#6f958b;  /* h2、.item small */
+  --ink-error:#f0a48f;  /* #settingsError */
+  --ink-footer:#5f7a74;  /* footer */
+  --ink-footer-debuglink:#5f8a80;  /* footer .debugLink */
+  --ink-helpbody-code:#bfe6da;  /* .helpBody code,.helpBody kbd */
+  --ink-highlight:#ffca7c;  /* #preview .word.active、#karaokeInner .word.active */
+  --ink-hstep:#b9cfc8;  /* .hstep */
+  --ink-hstep-now:#7fe0c3;  /* .hstep.now */
+  --ink-karaokeinner-prow-dim:#54706f;  /* #karaokeInner .prow.dim */
+  --ink-on-danger:#ffe9e5;  /* #exit */
+  --ink-pathline-code:#9fd8c8;  /* .pathLine code、#waveTip .tipTime */
+  --ink-preview:#e8f2ee;  /* #preview、#karaokeInner */
+  --ink-preview-prow-dim:#6d8b89;  /* #preview .prow.dim */
+  --ink-preview-word:#cfe3dc;  /* #preview .word、#karaokeInner .word */
+  --ink-problemlist-proposal-span:#c9a49c;  /* #problemList .proposal span */
+  --ink-problems-hint:#b78d85;  /* #problems .hint */
+  --ink-qrbox-qrhint:#9fc4bb;  /* #qrBox.qrhint */
+  --ink-quiet:#6f8a82;  /* .wnote、.hstep.future */
+  --ink-rows-tr-emptyrow-td:#8fada4;  /* #rows tr.emptyRow td */
+  --ink-setgrid-input:#e2efea;  /* .setgrid input:not([type=checkbox]),.setgrid select */
+  --ink-setgrid-label:#8aa9a4;  /* .setgrid label */
+  --ink-soft:#9fc0b8;  /* header p、h3 */
+  --ink-status:#8fc0b0;  /* #fitReport、#message */
+  --ink-steps-li-span:#93aca4;  /* .steps li span */
+  --ink-strong:#e6f2ee;  /* header、.helpBody kbd */
+  --ink-trans:#a8c9bf;  /* #preview .prow.trans、#karaokeInner .prow.trans */
+  --ink-wavetip:#dff0ea;  /* #waveTip */
+  --ink-wavetip-tipdelta-minus:#7fd0ff;  /* #waveTip .tipDelta.minus */
+  --ink-wavetip-tipdelta-plus:#ffb86b;  /* #waveTip .tipDelta.plus */
+  --ink-wavetip-tiphint:#7e9a96;  /* #waveTip .tipHint */
+  --ink-word-active:#ffb45e;  /* .word.active */
+  --item-active:#1f403a;  /* .item.active */
+  --karaoke-bg:#1d4a4f;  /* #karaoke */
+  --karaoke-close:#12403f;  /* #closeKaraoke */
+  --karaoke-hover:#265c60;  /* #karaoke:hover */
+  --karaoke-view:#08191d;  /* #karaokeView */
+  --problem-bg:#312227;  /* #problems */
+  --problem-edge:#4d3134;  /* #problems */
+  --ring-fresh:#4a86ad;  /* #rows tr.fresh td:first-child */
+  --row-active:#1f3a34;  /* #rows tr.activeRow、tr.playing */
+  --row-flash:#3d3722;  /* #rows tr.flash td */
+  --row-fresh:#1f3242;  /* #rows tr.fresh td */
+  --scrim:rgba(4,12,15,0.62);  /* dialog::backdrop */
+  --shadow-appnav:rgba(0,0,0,0.38);  /* #appNav */
+  --shadow-wavetip:rgba(0,0,0,0.45);  /* #waveTip */
+  --shadow-wordcell:rgba(0,0,0,0.25);  /* .wordCell */
+  --wave-bg:#102e35;  /* .waveframe */
+  --well:#0f2229;  /* input[type=range]::-webkit-slider-thumb */
+  /* 画布（波形）用的取值：JS 通过 Theme.token() 读，不在这里之外写颜色。 */
+  --wave-track-bg:#0c2329;
+  --wave-axis:rgba(151,198,189,.35);
+  --wave-axis-ink:rgba(151,198,189,.75);
+  --wave-env-main:#2f8068;
+  --wave-env-trans:#8a7a4f;
+  --wave-pick-weak:rgba(255,202,124,.10);
+  --wave-cursor:#f5f1e4;
+  --wave-word-cap:rgba(232,245,240,.55);
+  --wave-pointer:rgba(232,245,240,.75);
+  --wave-drag:#ffb653;
+  --wave-ch-right:rgba(138,170,216,.8);
+  --wave-ch-mono:rgba(111,213,176,.8);
+  --wave-ch-label:#d0e4e5;
+  --wave-hint:#aec8c9;
+  --wave-ring:#315057;
+  --wave-ring-label:#b4cdd0;
+  --wave-name-main:#8fdbb9;
+  --wave-name-trans:#efd296;
+  --wave-name-bg:#173941;
+  --wave-cell-main:#2f6d62;
+  --wave-cell-trans:#6f6846;
+  --wave-cell-line:rgba(143,219,185,.34);
+  --wave-pick:rgba(255,202,124,.85);
+  --wave-scrim:rgba(16,46,53,.78);
+  --wave-scrim-ink:#d2e2dc;
+  --wave-grid:rgba(151,198,189,.14);
+  --wave-cell-edge:rgba(8,24,28,.55);
+  --lib-error-ink:#c0392b;
+}
+
+
+html[data-theme="light"]{
+  --accent:#12846d;
+  --accent-deep:#0d6f5b;
+  --accent-ink:#ffffff;
+  --bg:hsl(168 16% 95%);
+  --danger:#b8433a;
+  --dim:hsl(170 10% 38%);
+  --dim2:hsl(170 11% 33%);
+  --hover:hsl(168 15% 86%);
+  --line:hsl(168 12% 82%);
+  --line-soft:hsl(168 12% 85%);
+  --line2:hsl(168 13% 75%);
+  --panel:hsl(168 18% 98%);
+  --panel2:hsl(168 15% 91%);
+  --text:hsl(170 20% 14%);
+  --warn:#8a6412;
+  --karaoke-view:#dee7ea;
+  --bg-wavetip:#dde6e9;
+  --bg-songstrip:#dde6e9;
+  --head-1:#dde5e9;
+  --well:#cfe1e8;
+  --bg-preview-2:#dce6e9;
+  --wave-bg:#dce6e8;
+  --head-2:#dce5e9;
+  --bg-preview:#dbe6e8;
+  --karaoke-close:#dbe8e8;
+  --bg-input:#dce4e9;
+  --bg-scrolly:#dce3e9;
+  --bg-nav:#dce4e8;
+  --bg-rows-tr-activerow-textarea:#dce8e6;
+  --karaoke-bg:#d9e6e7;
+  --bg-analysis:#dbe4e8;
+  --bg-matchpanel:#dbe4e8;
+  --bg-item:#dbe3e8;
+  --row-fresh:#dae1e7;
+  --row-active:#dae8e5;
+  --item-active:#dae7e5;
+  --bg-hstep-now:#d9e7e3;
+  --bg-steps-li:#dae3e8;
+  --edge-td:#c7d6dd;
+  --bg-secondary:#dae3e7;
+  --bg-wordcell:#dae3e7;
+  --bg-item-2:#dae3e7;
+  --edge-proposal:#bed0d9;
+  --karaoke-hover:#d8e5e6;
+  --accent-hover:#d3e3df;
+  --edge-item:#b4cbd5;
+  --ai-bg:#d9dfe7;
+  --bg-wline:#d9e2e7;
+  --edge-soft:#b5d4ce;
+  --edge-libbadge-ok:#9acec2;
+  --bg-base:#d9e3e7;
+  --edge-accent:#98cdcb;
+  --problem-bg:#e7dce0;
+  --ai-hover:#d7dee5;
+  --edge-wavetip:#a5c2ca;
+  --edge-hover:#a3c0ca;
+  --bg-alertbar:#e8dbdb;
+  --row-flash:#e7e4da;
+  --ai-edge:#97aec2;
+  --edge-hover-firm:#9bb8c2;
+  --bg-alertrow-alertaction:#e7dbd9;
+  --ring-fresh:#528eb5;
+  --problem-edge:#ceb2b5;
+  --ink-karaokeinner-prow-dim:#577574;
+  --ink-brand-soft:#408c78;
+  --edge-libbadge-missing:#ccbea0;
+  --ink-footer:#59736d;
+  --ink-footer-debuglink:#537970;
+  --ink-brand:#458778;
+  --ink-preview-prow-dim:#5a7271;
+  --ink-quiet:#5b716b;
+  --ink-caption:#56766d;
+  --ink-accent-soft:#299070;
+  --danger-edge:#c68f8a;
+  --ink-wavetip-tiphint:#5a726f;
+  --ink-wavetip-tipdelta-minus:#005180;
+  --ink-hstep-now:#1f8063;
+  --ink-setgrid-label:#567570;
+  --danger-surface:#e4d6d4;
+  --ink-rows-tr-emptyrow-td:#527067;
+  --ink-status:#3f7060;
+  --ink-steps-li-span:#536c64;
+  --ink-soft:#3f6058;
+  --ink-qrbox-qrhint:#3b6057;
+  --ink-pathline-code:#276050;
+  --ink-trans:#36574d;
+  --ink-problems-hint:#7a5048;
+  --ink-hstep:#30463f;
+  --ink-accent:#1f4038;
+  --ink-helpbody-code:#194034;
+  --ink-problemlist-proposal-span:#633e36;
+  --ink-button:#1f302a;
+  --ai-ink:#152630;
+  --ink-preview-word:#1c3029;
+  --ink-wavetip:#0f201a;
+  --ink-setgrid-input:#101d18;
+  --ink-strong:#0d1915;
+  --ink-preview:#0d1713;
+  --ink-error:#70240f;
+  --ink-word-active:#a15600;
+  --ink-wavetip-tipdelta-plus:#944d00;
+  --ink-highlight:#834e00;
+  --danger-ink:#2d0700;
+  --ink-on-danger:#1a0400;
+  --bg-qrbox:#cccccc;
+  --shadow-wordcell:rgba(0,0,0,0.138);
+  --shadow-appnav:rgba(0,0,0,0.209);
+  --shadow-wavetip:rgba(0,0,0,0.248);
+  --bg-rows-tr-haserror-td:rgba(131,61,50,0.1);
+  --fade-panel:rgba(255,255,255,0);
+  --scrim:rgba(38,50,48,.42);
+  --bg-rows-tr-td:rgba(66,175,146,0.05);
+  --bg-rows-tr-activerow-td:rgba(66,175,146,0.09);
+  --shadow-1:0 1px 2px rgba(0,0,0,.10);
+  --shadow-2:0 18px 60px rgba(0,0,0,.16);
+  --wave-grid:rgba(56,92,87,.16);
+  --wave-cell-edge:rgba(40,92,83,.45);
+  color-scheme:light;
+  /* 画布在浅色下的取值 */
+  --wave-track-bg:#e0e9e7;
+  --wave-axis:rgba(56,92,87,.35);
+  --wave-axis-ink:rgba(44,74,69,.75);
+  --wave-env-main:#26705a;
+  --wave-env-trans:#6f5f34;
+  --wave-pick-weak:rgba(190,130,20,.12);
+  --wave-cursor:#2b3a36;
+  --wave-word-cap:rgba(46,62,59,.45);
+  --wave-pointer:rgba(40,55,52,.60);
+  --wave-drag:#a86a10;
+  --wave-ch-right:rgba(52,88,140,.8);
+  --wave-ch-mono:rgba(18,118,88,.8);
+  --wave-ch-label:#283a3c;
+  --wave-hint:#4a5f61;
+  --wave-ring:#b8ccc8;
+  --wave-ring-label:#3d5254;
+  --wave-name-main:#1d6b52;
+  --wave-name-trans:#7a5c1c;
+  --wave-name-bg:#d8e6ea;
+  --wave-cell-main:#98c4b4;
+  --wave-cell-trans:#ddd0a6;
+  --wave-cell-line:rgba(40,92,83,.34);
+  --wave-pick:rgba(176,118,14,.85);
+  --wave-scrim:rgba(240,246,244,.78);
+  --wave-scrim-ink:#2f3f3a;
+  --lib-error-ink:#b0372a;
+}
+
+
+
+
+
+
+
+
+
+*{box-sizing:border-box}body{margin:0}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--bg-base);border-radius:5px}::-webkit-scrollbar-track{background:transparent}
+header{display:flex;align-items:center;gap:8px;padding:5px 10px;
+  background:linear-gradient(180deg,var(--head-1),var(--head-2));border-bottom:1px solid var(--line-soft);color:var(--ink-strong)}
+.brand{font-size:14px;font-weight:600}
+.brand b{font-weight:300;color:var(--ink-brand-soft)}
+header small{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--ink-brand)}
+header .hint{font-size:11px}
+nav{padding:5px 10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+  background:var(--bg-nav);border-bottom:1px solid var(--panel2)}
+/* 一簇 = 一件事（导入 / 导出 / 工具），簇与簇之间一条细线 */
+.cluster{display:flex;gap:4px;align-items:center}
+nav .sep{width:1px;height:16px;background:var(--line-soft);margin:0 5px;flex:none}
+button,.button,select{border:1px solid var(--line2);background:var(--panel2);border-radius:var(--r-1);
+  padding:4px 9px;cursor:pointer;color:var(--ink-button);font:inherit;font-size:13px;line-height:1.5;
+  transition:background .12s,border-color .12s}
+button:hover,.button:hover{background:var(--hover);border-color:var(--edge-hover-firm)}
+button:active,.button:active{background:var(--line-soft)}
+button:focus-visible,.button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button:disabled{opacity:.45;cursor:default}
+.button{background:var(--accent-deep);border-color:var(--accent-deep);color:var(--accent-ink);font-weight:600}
+.button:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+.secondary{background:var(--bg-secondary);color:var(--ink-button)}
+.secondary:hover{background:var(--hover)}
+input,textarea{font:inherit;border:1px solid var(--line2);border-radius:var(--r-1);padding:4px 6px;font-size:13px;
+  background:var(--bg-input);color:var(--text)}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
+/* --- 可选项统一成开关 ------------------------------------------------------
+   页面里所有"开/关一个功能"的勾选项都长成开关（滑轨 + 圆点），
+   而不是浏览器默认的方框 —— 方框在小屏上太难看出当前是开还是关。
+   一处规则覆盖全部：工具栏、设置面板、联网查找字词那一页的选项都命中这里，
+   以后新增 `type=checkbox` 的可选项自动就是这个样式。
+
+   例外（下面单独还原成方框）：**列表里"挑条目"的勾选**（队列、对齐候选）——
+   那是选择而不是开关，做成开关既不符合语义，也在密集列表里太占地方。 */
+input[type=checkbox]{
+  -webkit-appearance:none;appearance:none;
+  position:relative;flex:none;margin:0;cursor:pointer;
+  /* padding 必须显式清零：上面那条通用规则 `input,textarea` 给所有输入框加了
+     padding:8px，勾选框也被命中，不清掉的话 34x18 的开关会被撑成 50x34。
+     （注释里不写花括号：它同样会打断朴素的 CSS 规则解析。） */
+  padding:0;line-height:0;
+  width:34px;height:18px;border-radius:9px;
+  background:var(--panel2);border:1px solid var(--line2);
+  transition:background .14s ease,border-color .14s ease;
+}
+input[type=checkbox]::after{
+  content:'';position:absolute;top:2px;left:2px;
+  width:12px;height:12px;border-radius:50%;
+  background:var(--dim2);transition:transform .14s ease,background .14s ease;
+}
+input[type=checkbox]:checked{background:var(--accent-deep);border-color:var(--accent)}
+input[type=checkbox]:checked::after{transform:translateX(16px);background:var(--accent-ink)}
+input[type=checkbox]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=checkbox]:disabled{opacity:.5;cursor:default}
+/* 例外：挑条目的方框（队列勾选 / 匹配候选）。贴唱列表不用勾选框 ——
+   它的每一行只有一个「试听」按钮，容器是 #fitList，
+   所以这里不为它写勾选框规则。 */
+input[type=checkbox].pick,
+#queue input[type=checkbox],
+#matchCandidates input[type=checkbox]{
+  -webkit-appearance:auto;appearance:auto;
+  width:auto;height:auto;border:0;background:none;border-radius:0;
+  accent-color:var(--accent);
+}
+input[type=checkbox].pick::after,
+#queue input[type=checkbox]::after,
+#matchCandidates input[type=checkbox]::after{content:none}
+/* 主网格：左栏宽度由 `--split-left` 决定（拖动分栏只改这一个变量）。
+   `min(…, 50%)` 是**响应式上限**：不管用户存过多宽，左栏都不会超过窗口一半。
+   断点（有没有中间的 10px 把手轨、窄屏要不要变单列）**全部由这里说了算** ——
+   内联 grid-template-columns 会压过 @media，所以 splitter.js 不写内联模板：
+   窗口拖到 1250px 以下、把手被 display:none 移出网格时，若模板仍是三轨，
+   section 会掉进那个 10px 的轨道里（整个编辑器被挤成一条）。 */
+main{--split-left:210px;display:grid;gap:8px;padding:6px 10px 14px;
+  grid-template-columns:min(var(--split-left),50%) minmax(0,1fr)}
+aside,section{background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--r-3);
+  padding:10px 12px;min-width:0}
+h2{font-size:13px;margin:0 0 8px;letter-spacing:.2px}#count{float:right;color:var(--ink-caption);font-weight:400}
+.hint{font-size:11.5px;line-height:1.6;color:var(--dim2)}
+/* 关联状态是一行一条事实（图标指向哪、命令是什么、哪里有毛病），
+   所以它必须**换行显示** —— 挤成一行的话"图标文件不在"这条会被读漏。 */
+.assocState{white-space:pre-line;font-family:ui-monospace,Consolas,monospace;font-size:12px}
+.item{display:block;width:100%;text-align:left;margin:var(--sp-1) 0;overflow-wrap:anywhere;
+  border-radius:var(--r-2);padding:6px 8px;background:var(--bg-item);border-color:var(--edge-item)}
+.item:hover{background:var(--bg-item-2);border-color:var(--edge-hover)}
+.item.active{border-color:var(--accent);background:var(--item-active)}
+.item small{display:block;margin-top:3px;color:var(--ink-caption);font-size:11px}
+.titlebar,.toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+/* A hairline between groups of buttons that do different jobs, so 导出歌词 and
+   保存工程 read as two features rather than one. */
+.toolbar .sep{width:1px;height:22px;background:var(--line-soft);margin:0 3px;flex:none}
+
+/* --- 顶部 dock：应用级按钮条 -----------------------------------------------
+   这里的"dock"指**最上面那一行应用级按钮**（从曲库导入 / 添加打开 / 帮助 /
+   设置 / AI 翻译 / 导出 ZIP …），不是编辑区里的某一行。
+   停靠 = 始终可见：粘在窗口顶部，页面滚动时它不动。
+   它自带的背景是不透明的，所以内容从下面滚过去不会透出来。 */
+#appNav{
+  position:sticky;top:0;z-index:25;
+  box-shadow:0 6px 18px var(--shadow-appnav);
+}
+
+/* --- 编辑坞：编辑区里的普通一行（只属于「波形编辑」页，不再固定）----------- */
+#editDock{margin-top:10px}
+.titlebar{justify-content:space-between;margin-bottom:14px}.titlebar h2{margin:0}
+/* The audio element is hidden: its native control bar ignores our CSS
+   (background, colours) and follows the browser's own media-control theme, so
+   it cannot be styled into the dark UI. #playPause / #playTime in .wavebar
+   provide the same transport in our own colours. The element stays in the DOM:
+   all playback goes through it. */
+audio{display:none}
+#playPause{padding:7px 14px;font-weight:600;flex:none;min-width:88px}
+.clock{font-family:Consolas,monospace;font-size:12px;color:var(--dim);flex:none;
+  font-variant-numeric:tabular-nums}
+/* Fixed width for the percentage so the controls to its right do not shift as
+   the number changes from 100% to 9%. */
+#volume{width:110px}
+#volumeValue{min-width:42px;text-align:right}
+
+/* --- 滑块：填充必须走到两端 ------------------------------------------------
+   原生的 input[type=range] 轨道相对元素盒是**内缩**的（两端各留一截），于是滑到头
+   时填充条离边缘还有一段空档 —— 看着"留了空间却拖不进去"。
+   这里自己画轨道：轨道宽度 = 元素宽度，填充用 --fill（由 paintRange() 按
+   value/min/max 写进去），所以 极左 = 0% 全空、极右 = 100% 全满，两端严丝合缝。
+   --fill 的默认值 50% 只为兜底，页面初始化时 studio.js 会立刻覆盖它。 */
+input[type=range]{
+  -webkit-appearance:none;appearance:none;background:transparent;
+  height:18px;margin:0;padding:0;cursor:pointer;flex:none;
+}
+input[type=range]::-webkit-slider-runnable-track{
+  height:6px;border-radius:3px;
+  background:linear-gradient(90deg,
+    var(--accent) 0 var(--fill,50%),
+    var(--line) var(--fill,50%) 100%);
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:14px;height:14px;border-radius:50%;
+  /* 轨道 6px、滑块 14px → 上移 4px 让圆心对准轨道中线 */
+  margin-top:-4px;background:var(--accent);border:2px solid var(--well);
+}
+input[type=range]:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:9px}
+/* (#preview / #previewMain / #previewTranslation are NOT styled here: a light
+   panel with min-height:112px would fight the dark-theme block further down,
+   and min-height would become a second authority over the panel's height.
+   The panel's size is stated once, where the rows are — so this block stays
+   empty.) */
+.word.active{color:var(--ink-word-active)}
+/* 通用 input 规则一律排除勾选框 —— 开关的盒子只有 input[type=checkbox] 那一处权威。
+   （命中勾选框时，0,2,1 的优先级会盖掉基础规则里的 34px，
+   把开关从 34px 拉成 95px。） */
+.toolbar input:not([type=checkbox]){width:95px}
+.tablewrap{overflow:auto;margin-top:16px;max-height:58vh;scrollbar-gutter:stable}
+.tablewrap thead th{position:sticky;top:0;background:var(--panel);z-index:2;border-bottom:1px solid var(--line)}
+.wline{position:relative;height:8px;margin:4px 0 3px;background:var(--bg-secondary);border-radius:4px}
+.wline i{position:absolute;top:0;width:1px;height:8px;background:var(--accent)}
+.wline b{position:absolute;right:0;top:-2px;width:2px;height:12px;background:var(--warn)}
+/* The cells read as one strip when the air between them is small and the tones
+   are close. The gap has to be big enough to see at a glance (20px+), not
+   merely present in the CSS. */
+.wordGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:20px 24px;margin:14px 0;max-height:46vh;overflow:auto;padding:6px}
+.wordCell{display:flex;flex-direction:column;gap:5px;border:1px solid var(--line2);border-radius:9px;padding:10px 8px;background:var(--bg-wordcell);align-items:center;box-shadow:0 1px 0 var(--shadow-wordcell)}
+.wordCell.next{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.wordCell.bad{border-color:var(--danger);box-shadow:0 0 0 1px var(--danger)}
+.wordChar{font-size:17px;font-weight:600;line-height:1.35;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wordCell .wordTime{width:100%;font-size:12px;font-family:Consolas,monospace;padding:4px 2px;text-align:center}
+.wordCell button{font-size:11px;padding:2px 8px}
+.wordFoot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0}
+#wordDialog{max-width:960px}
+#wordEditDialog{max-width:960px}
+#wordEditError{color:var(--danger)}
+
+/* --- login dialog --- */
+#loginDialog{max-width:560px}
+#loginDialog .toolbar{margin-top:10px}
+#loginDialog label{display:inline-flex;align-items:center;gap:6px;margin:4px 10px 4px 0}
+#qrBox{margin:10px 0;padding:12px;background:var(--bg-qrbox);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;min-height:120px}
+#qrBox.qrhint{background:var(--bg-secondary);color:var(--ink-qrbox-qrhint);font-size:13px;min-height:0}
+#qrBox img{display:block}
+#loginMessage{min-height:20px}
+#loginState{white-space:nowrap}
+.wline:hover{background:var(--bg-wline)}
+.wnote{font-size:11px;color:var(--ink-quiet);line-height:1.5}
+
+/* --- table / waveform sync --- */
+.posline{position:relative;height:5px;margin:5px 0 3px;background:var(--bg-secondary);border-radius:3px}
+.posline i{position:absolute;top:0;height:5px;background:var(--accent);border-radius:3px}
+#rows tr{cursor:pointer}
+/* 删到一行不剩时的空状态：整块提示，不可点。它必须看起来就不是一行歌词，
+   否则用户会以为那是一行空歌词。 */
+#rows tr.emptyRow{cursor:default}
+#rows tr.emptyRow td{padding:18px 14px;color:var(--ink-rows-tr-emptyrow-td);font-size:13px;line-height:1.7;background:transparent}
+#rows tr.activeRow{background:var(--row-active)}
+#rows tr.activeRow td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+#rows tr.activeRow textarea{background:var(--bg-rows-tr-activerow-textarea)}
+#matchPanel{background:var(--bg-matchpanel);border:1px solid var(--edge-soft);border-radius:10px;padding:14px 16px;margin:0 0 14px}
+#matchPanel .titlebar{margin-bottom:6px}
+#matchPanel h3{color:var(--ink-accent-soft)}
+#candidates,#matchCandidates{max-height:260px;overflow:auto}
+
+/* --- explicit selection + problem triage --- */
+#queue .item{display:flex;align-items:center;gap:8px}
+#queue .pickWrap{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--dim2);flex:none;cursor:pointer}
+#queue .rowmain{flex:1;min-width:0;cursor:pointer}
+#queue .rowmain strong{display:block;font-size:13px;line-height:1.45;overflow-wrap:anywhere}
+#queue .meta{display:block;margin-top:3px;font-size:11px;color:var(--dim2);line-height:1.5;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#queue .meta b{font-weight:600}
+#queue .meta b.ok{color:var(--accent)}
+#queue .meta b.missing{color:var(--danger)}
+#queue .open{flex:none;font-size:11px;padding:5px 8px;align-self:center}
+#saveResult{background:var(--bg-matchpanel);border:1px solid var(--edge-soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+#saveResult strong{color:var(--ink-accent-soft)}
+#saveResult code{display:block;margin:6px 0;word-break:break-all;background:var(--bg-input);border:1px solid var(--line);
+  border-radius:6px;padding:7px 9px;font-size:12px;cursor:copy}
+#saveResult .toolbar{margin-top:8px}
+#problems{background:var(--problem-bg);border:1px solid var(--problem-edge);border-radius:10px;padding:12px 14px;margin:14px 0}
+#problems h3{color:var(--danger);margin:0}
+#problems .hint{color:var(--ink-problems-hint)}
+/* 贴唱结果列表：每条一行（"原来 → 现在 [标签] 理由" + 试听）。
+   "保持原时间"的那些淡一点 —— 它们不是结果，是"这里没有证据"的说明。 */
+#fitList{display:flex;flex-direction:column;gap:4px;margin:8px 0;max-height:38vh;overflow:auto}
+#fitList .proposal{display:flex;align-items:center;gap:8px;font-size:12px;line-height:1.6}
+#fitList .proposal span{flex:1;min-width:0;overflow-wrap:anywhere}
+#fitList .proposal.fitKept{opacity:.62}
+#fitList .proposal button{flex:none;padding:2px 8px}
+#fitReport{color:var(--ink-status)}
+#problemList{max-height:250px;overflow:auto;margin-top:6px}
+#problemList .proposal span{color:var(--ink-problemlist-proposal-span)}
+#problemList .proposal.err span{color:var(--danger)}
+.steps{list-style:none;margin:8px 0 6px;padding:0;display:grid;gap:8px}
+.steps li{display:flex;align-items:center;gap:12px;background:var(--bg-steps-li);border:1px solid var(--line);border-radius:8px;padding:9px 12px}
+.steps li span{font-size:12px;color:var(--ink-steps-li-span);line-height:1.6}
+.steps li button{white-space:nowrap;flex:none}
+#rows tr.hasError td{background:var(--bg-rows-tr-haserror-td)}
+#rows tr.hasError td:first-child{box-shadow:inset 3px 0 0 var(--danger)}
+#rows tr.hasWarning td:first-child{box-shadow:inset 3px 0 0 var(--warn)}
+#rows tr.flash td{background:var(--row-flash);transition:background .25s}
+#rows tr.fresh td{background:var(--row-fresh)}
+#rows tr.fresh td:first-child{box-shadow:inset 3px 0 0 var(--ring-fresh)}
+
+/* --- draggable column splitter + edit history --- */
+#splitter{width:10px;margin:0 -4px;cursor:col-resize;border-radius:5px;touch-action:none}
+#splitter:hover,#splitter.dragging{background:var(--line)}
+@media(max-width:1249px){#splitter{display:none}}
+#historyList{display:grid;gap:4px;margin:8px 0;max-height:260px;overflow:auto}
+.hstep{display:block;width:100%;text-align:left;font-size:12px;padding:6px 8px;border:1px solid var(--line);background:var(--panel2);border-radius:6px;color:var(--ink-hstep);cursor:pointer}
+.hstep:hover{background:var(--hover)}
+.hstep.now{background:var(--bg-hstep-now);border-color:var(--accent);color:var(--ink-hstep-now);font-weight:600;cursor:default}
+.hstep.future{color:var(--ink-quiet)}
+.hstep.divider{border:none;background:none;color:var(--ink-quiet);font-size:11px;padding:2px 4px;cursor:default}
+.scrolly{max-height:280px;overflow:auto;background:var(--bg-scrolly);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px}
+.scrolly pre{white-space:pre-wrap;word-break:break-all;margin:4px 0}
+#overview{white-space:pre-wrap;background:var(--bg-scrolly);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:12px}
+#exit{background:var(--danger-surface);border-color:var(--danger-surface);color:var(--ink-on-danger)}
+footer .debugLink{color:var(--ink-footer-debuglink);font-size:11px;margin-left:10px;text-decoration:none}
+footer .debugLink:hover{color:var(--accent);text-decoration:underline}
+table{border-collapse:collapse;width:100%}
+th{text-align:left;color:var(--dim2);font-size:11px;letter-spacing:.4px;padding:5px 8px;
+  text-transform:uppercase}
+td{border-top:1px solid var(--edge-td);padding:5px 8px;vertical-align:top}
+#rows tr:hover td{background:var(--bg-rows-tr-td)}
+#rows tr.activeRow td{background:var(--bg-rows-tr-activerow-td)}
+td input:not([type=checkbox]){width:92px;font-family:ui-monospace,Consolas,monospace;font-size:12px}td textarea{width:100%;min-width:160px;resize:vertical;background:var(--bg-input);font-size:12.5px;
+  line-height:1.55;padding:3px 6px;min-height:0}
+td button{padding:3px 7px;margin:1px;font-size:12px}
+tr.playing{background:var(--row-active)}
+details{margin-top:20px}summary{cursor:pointer;font-weight:600}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:inherit;line-height:1.7;font-size:12px}
+#statusBar{display:flex;align-items:center;gap:10px;margin:16px 4%;flex-wrap:wrap}
+#message{margin:0;flex:1;min-width:0;color:var(--ink-status);white-space:pre-wrap}
+/* 「打开所在文件夹」：导出刚落盘时出现，方便立刻找到那个文件。 */
+#revealLast{flex:none;font-size:12px;padding:2px 10px}
+dialog{border:1px solid var(--line2);border-radius:var(--r-3);max-width:720px;width:90%;padding:var(--sp-4);
+  background:var(--panel);color:var(--text);box-shadow:var(--shadow-2)}
+dialog::backdrop{background:var(--scrim);backdrop-filter:blur(2px)}
+dialog textarea{width:100%;font-family:monospace}
+/* 应用内提示：失败弹框 + 后台失败横幅。
+   两者都由 web/notify.js 建出来 —— 那是唯一的提示出口，所以外观也只在这里定义一次。
+   **不写 `display`**：作者样式会压过引擎的 `dialog:not([open]){display:none}`，
+   写了就会造出关不掉的框；这里只碰宽度与内部排版。 */
+dialog.errorDialogBox{max-width:640px}
+dialog.errorDialogBox .errorDetail{margin:0 0 6px;line-height:1.7;
+  white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text)}
+dialog.errorDialogBox .errorHints{margin:0 0 6px;padding-left:20px;line-height:1.8;font-size:13px}
+dialog.errorDialogBox .errorHints li{margin:2px 0}
+dialog.errorDialogBox .dialogActions{display:flex;gap:8px;align-items:center;
+  flex:none;position:sticky;bottom:0;padding-top:10px;
+  border-top:1px solid var(--line-soft);background:var(--panel)}
+/* 顶部横幅：**后台持续失败**用的（自动落盘之类），不打断操作。
+   它一直在那儿就说明那件事还没好 —— 好了由调用方 clearBanner 收掉，这正是它该有的样子。 */
+.alertBar{position:sticky;top:0;z-index:30;display:flex;flex-direction:column;gap:6px;
+  padding:8px 4%;background:var(--bg-alertbar);border-bottom:1px solid var(--danger-edge)}
+.alertBar[hidden]{display:none}
+.alertRow{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--danger-ink)}
+.alertRow .alertText{flex:1;min-width:0;overflow-wrap:anywhere}
+.alertRow .alertAction{flex:none;font-size:12px;padding:2px 10px;
+  border-color:var(--danger-edge);background:var(--bg-alertrow-alertaction);color:var(--danger-ink)}
+footer{text-align:center;color:var(--ink-footer);padding:20px}
+@media(max-width:850px){main{grid-template-columns:1fr}header p{display:none}aside{max-height:250px;overflow:auto}}
+.waveframe{overflow:hidden;border-radius:10px;margin-top:6px;background:var(--wave-bg)}
+/* width:100% matters even though JS also writes style.width: without it the
+   element's own clientWidth falls back to the `width` ATTRIBUTE (300) until the
+   first paint, so any geometry read before then used a 300px viewport and the
+   strip frame came out ~4x too short. Declaring the width makes the element
+   self-consistent from the very first layout, so canvas.clientWidth and
+   parentElement.clientWidth can never disagree. */
+#waveCanvas{display:block;width:100%;touch-action:none;cursor:crosshair}
+.songstrip{display:block;width:100%;height:44px;margin-top:12px;border-radius:8px;background:var(--bg-songstrip);touch-action:none;cursor:pointer}
+.wavebar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:14px 0;font-size:12px}
+.wavebar label{display:flex;align-items:center;gap:5px}
+.wavebar input[type=range]{width:120px}
+.wavebar label.followOff{opacity:.45}
+.wavebar input[type=number]{width:64px}
+.axisInput{display:flex;align-items:center;gap:5px;margin-bottom:6px;font-size:12px}.axisInput input:not([type=checkbox]){width:92px}
+.analysis{padding:18px;background:var(--bg-analysis);border:1px solid var(--line);border-radius:8px}
+.analysis .toolbar{margin-top:12px}.analysis label{font-size:12px}.analysis select{max-width:240px}
+.proposal{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--edge-proposal)}
+.proposal span{flex:1;font-size:12px;line-height:1.7}
+.proposal input{flex:none}.proposal button{font-size:12px;white-space:nowrap}
+#analysisState{color:var(--accent)}#wordError{color:var(--danger);min-height:18px;font-size:12px}#languages{color:var(--ink-caption)}
+.manual{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0}
+.manual label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--dim2)}
+.manual textarea{width:100%;resize:vertical;font-size:12px;line-height:1.7}
+#candidates,#batchResults{max-height:300px;overflow:auto;margin:12px 0}#batchResults{margin-top:16px}
+#rows td .word{font-size:11px;color:var(--ink-quiet);margin-top:5px;overflow-wrap:anywhere;line-height:1.6}
+#rows td input:not([type=checkbox]){width:100%}
+#libraryState{align-self:center;color:var(--dim2);font-size:12px}
+nav a.button{display:inline-block;line-height:1.2}
+@media(max-width:820px){.manual{grid-template-columns:1fr}}
+/* 宽屏才给把手一条轨；窄屏没有这一轨，把手也 display:none（下面那条）。
+   两条必须成对出现 —— 少了任何一条，网格项与轨道数就对不上。 */
+@media(min-width:1250px){main{grid-template-columns:min(var(--split-left),50%) 10px minmax(0,1fr);padding-left:3%;padding-right:3%}}
+
+/* --- compact layout: tabs, inline controls, capped scroll areas --- */
+.inline{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--dim)}
+/* 当前用不上的控件要看得出来（例如「声音起点对齐」引擎下的「语言」下拉）：
+   禁用 + 变淡 + 一句 title，比"拧了没反应"诚实。 */
+.inline.isOff{opacity:.5}
+.inline select,.inline input[type=number]{padding:6px 8px}
+.inlineGroup{display:inline-flex;align-items:center;gap:12px;flex-wrap:wrap}
+.spacer{flex:1}
+nav .inline select{max-width:150px}
+#queue{max-height:54vh;overflow:auto}
+#queue .item{padding:7px 9px;margin:5px 0;border:1px solid var(--edge-proposal);background:var(--panel2);border-radius:8px}
+#report,#metadata{max-height:320px;overflow:auto;font-size:12px;line-height:1.65;white-space:pre-wrap}
+/* 格式检查的结果框：一行一条，每条带等级标记与「定位」按钮。
+   纯文本 <pre> 会把 60 行缺逐字时间刷成一堵点不动的墙，所以这里一行一条。 */
+.reportBox{display:flex;flex-direction:column;gap:4px;white-space:normal;padding:2px}
+.reportRow{display:flex;align-items:flex-start;gap:8px;padding:5px 8px;
+  border-radius:var(--r-1);background:var(--panel2);border:1px solid var(--line-soft)}
+.reportRow .mark{flex:none;font-weight:600}
+.reportRow.bad .mark{color:var(--danger)}
+.reportRow.warn .mark{color:var(--warn)}
+.reportRow .text{flex:1;min-width:0;overflow-wrap:anywhere}
+.reportRow button{flex:none;padding:2px 8px;font-size:12px}
+.pane{display:none}.pane.active{display:block}
+.tabs{display:flex;gap:4px;padding:0 0 10px;margin:0 0 14px;border-bottom:1px solid var(--line);background:none}
+.tab{border:none;border-bottom:2px solid transparent;border-radius:0;background:none;padding:8px 12px;color:var(--dim2)}
+.tab:hover{background:var(--panel2)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+h3{font-size:14px;margin:16px 0 8px;color:var(--ink-soft)}
+
+/* --- lyric preview: previous / current / translation / next ---
+   The window is a FIXED SIZE on purpose: every row reserves its full height, so
+   the panel cannot shrink when a row has nothing in it (before a song's first
+   lyric, or between lines) and cannot grow when a line is long. A panel that
+   changes height as playback moves drags the waveform and the table up and down
+   with it — "不要因为没有歌词显示就突然缩小".
+
+   The heights below are the sum: padding 14 + prev 18 + gap 6 + current 78
+   (two lines at 39px) + gap 6 + translation 20 + next 18 + padding 14. */
+/* 卡拉OK 预览：常驻的一整块（上一句 / 当前句 / 译文 / 下一句）。
+   它是这一屏里分量最重的那块 —— 当前行 26px，四行高度全部写死，所以歌词进出时
+   面板不会一伸一缩把波形和表格拽着动。 */
+#preview{position:relative;margin:0 0 12px;padding:14px 76px 14px 16px;border-radius:10px;
+  background:linear-gradient(180deg,var(--bg-preview),var(--bg-preview-2));color:var(--ink-preview);text-align:center;overflow:hidden}
+#preview .prow{white-space:pre-wrap;overflow-wrap:anywhere}
+/* One line each; a long neighbour is clipped rather than allowed to move the box. */
+#preview .prow.dim{font-size:13px;line-height:18px;height:18px;color:var(--ink-preview-prow-dim);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Two lines reserved. The current line is the one that carries the karaoke
+   highlight, so it keeps wrapping; the box simply never notices. */
+#preview .prow.now{font-size:26px;line-height:39px;height:78px;margin:6px 0;font-weight:600;overflow:hidden}
+#preview .prow.trans{font-size:15px;line-height:20px;height:20px;color:var(--ink-trans);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#preview .word{color:var(--ink-preview-word);transition:color .05s linear}
+#preview .word.active{color:var(--ink-highlight)}
+#karaoke{position:absolute;top:8px;right:10px;font-size:11px;padding:5px 9px;background:var(--karaoke-bg);border-color:var(--edge-accent);color:var(--ink-accent)}
+#karaoke:hover{background:var(--karaoke-hover)}
+#karaokeView{position:fixed;inset:0;z-index:50;background:var(--karaoke-view);display:flex;align-items:center;justify-content:center}
+#karaokeView[hidden]{display:none}
+#karaokeInner{text-align:center;width:min(1100px,92vw);color:var(--ink-preview)}
+#karaokeInner .prow{white-space:pre-wrap;overflow-wrap:anywhere}
+/* Same fixed-size rule as the in-editor preview, scaled up: a full-screen
+   karaoke view that jumped between line lengths would be worse, not better. */
+#karaokeInner .prow.dim{font-size:20px;line-height:28px;height:28px;color:var(--ink-karaokeinner-prow-dim);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#karaokeInner .prow.now{font-size:52px;line-height:72.8px;height:145.6px;margin:18px 0;font-weight:600;overflow:hidden}
+#karaokeInner .prow.trans{font-size:26px;line-height:34px;height:34px;color:var(--ink-trans);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#karaokeInner .word{color:var(--ink-preview-word)}
+#karaokeInner .word.active{color:var(--ink-highlight)}
+#closeKaraoke{position:fixed;top:18px;right:22px;background:var(--karaoke-close);border-color:var(--edge-accent);color:var(--ink-accent)}
+/* --- in-editor library picker + help --- */
+.helpBox{margin-top:12px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--bg-nav)}
+.wideDialog{max-width:1000px;width:92vw}
+.libbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0}
+.libbar input[type=search]{flex:1;min-width:200px}
+.libList{max-height:52vh;overflow:auto;display:grid;gap:4px;margin:8px 0}
+.libRow{display:flex;align-items:center;gap:10px;text-align:left;padding:8px 10px;background:var(--panel2);border:1px solid var(--line)}
+.libRow strong{font-size:13px;flex:none;max-width:38%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.libRow small{flex:1;color:var(--dim2);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.libBadge{flex:none;font-size:11px;padding:2px 7px;border-radius:10px;border:1px solid var(--line2);color:var(--dim2)}
+.libBadge.ok{color:var(--accent);border-color:var(--edge-libbadge-ok)}
+.libBadge.missing{color:var(--warn);border-color:var(--edge-libbadge-missing)}
+.libRow:hover{border-color:var(--accent);background:var(--line-soft)}
+.helpBody{max-height:62vh;overflow:auto;padding-right:6px}
+.helpBody h3{margin:16px 0 6px;color:var(--accent)}
+.helpBody h3:first-child{margin-top:0}
+.helpBody ul{margin:0;padding-left:20px;font-size:12px;line-height:1.8;color:var(--text)}
+.helpBody li{margin:3px 0}
+.helpBody code,.helpBody kbd{background:var(--bg-input);border:1px solid var(--line2);border-radius:4px;
+  padding:1px 6px;font-family:Consolas,monospace;font-size:11px;color:var(--ink-helpbody-code)}
+.helpBody kbd{color:var(--ink-strong)}
+
+.helpBox summary{font-size:12px;color:var(--dim);cursor:pointer;font-weight:600}
+.helpBox ul{margin:8px 0 0;padding-left:18px;font-size:12px;color:var(--dim2);line-height:1.7}.helpBox li{margin:3px 0}
+
+/* --- AI 翻译按钮 -----------------------------------------------------------
+   这两个按钮原先住在歌词预览面板的右侧留白里（和「⤢ 全屏」上下排），所以当年写了
+   `position:absolute; right:10px; top:34px/60px`。
+   它们搬进编辑坞之后，**那几条绝对定位仍然生效** —— 元素被抽离文档流、钉到页面
+   右上角，工具栏里只剩一个空白缝：用户看到的是"夹在中间了，但看不到也点不到"。
+   现在它们就是普通的工具栏按钮：只保留配色与禁用态，定位交给 flex 行。
+   （本项目第 107 条：旧位置残留的 CSS 属性会悄悄活着 —— 搬家时要连属性一起清。） */
+#aiTranslate,#aiTranslateAll{font-size:12px;padding:6px 11px;
+  background:var(--ai-bg);border-color:var(--ai-edge);color:var(--ai-ink)}
+#aiTranslate:hover,#aiTranslateAll:hover{background:var(--ai-hover)}
+#aiTranslate[disabled],#aiTranslateAll[disabled]{opacity:.5;cursor:progress}
+
+/* --- settings dialog ------------------------------------------------------ */
+.settingsBox{width:min(720px,94vw)}
+.setgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.setgrid label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--dim,var(--ink-setgrid-label))}
+.setgrid label.inline{flex-direction:row;align-items:center;gap:10px;font-size:13px;color:inherit;
+  /* 功能开关是**整行**的：一列只有三百多像素，长一点的说明会折成三行，
+     开关挤在旁边看着就乱。整行之后每条说明基本一行放得下。 */
+  grid-column:1/-1}
+.setgrid label.wide{grid-column:1/-1}
+/* ⚠️ `:not([type=checkbox])` 是必须的，别删。
+   开关的外观（宽高/圆角/padding）**只由 input[type=checkbox] 那一条规则决定**；
+   这里一旦把它也命中，就出现"第二个权威"。真事故：
+   若命中勾选框（如 `.setgrid input[type=checkbox]{width:auto;padding:0}` 的写法），
+   （0,2,1 > 0,1,1）优先级更高会让开关轨道塌回默认宽度（约 13px），
+   而圆点照样按 left:2px + translateX(16px) 走 → **圆点跑到轨道外面、压在文字上**，
+   也就是"设置里的开关与文字打架"。 */
+.setgrid input:not([type=checkbox]),.setgrid select{background:var(--panel2,var(--panel2));border:1px solid var(--line2,var(--line2));
+  color:var(--ink-setgrid-input);border-radius:6px;padding:8px 10px;font:inherit}
+.setgrid input.keycap{font-family:ui-monospace,Consolas,monospace;letter-spacing:.5px;cursor:pointer}
+.settingsBox details{margin:14px 0;border-top:1px solid var(--line2,var(--line2));padding-top:10px}
+.settingsBox summary{cursor:pointer;font-weight:600;margin-bottom:6px}
+#settingsError{color:var(--ink-error);min-height:18px;margin:6px 0}
+#settingsError:empty{min-height:0}
+@media(max-width:700px){.setgrid{grid-template-columns:1fr}}
+
+/* --- 工程的保存位置 -------------------------------------------------------
+   首次启动的弹窗与「检查与工程」页用的是同一套元素，所以样式只写一处。
+   注意这里**不给 dialog 写 display**：作者样式会压过引擎的
+   `dialog:not([open]){display:none}`，那样会造出关不掉的框。
+   没有必要就别去碰它。 */
+.projectBox{width:min(640px,94vw)}
+.projectBox code{background:var(--bg-input);border:1px solid var(--line2);border-radius:4px;
+  padding:1px 5px;font-size:12px;overflow-wrap:anywhere}
+.projectPathRow{display:flex;align-items:center;gap:8px;margin:10px 0 4px}
+.projectPathRow input{flex:1;min-width:0;font-family:ui-monospace,Consolas,monospace}
+#projectState{color:var(--danger)}
+#projectState:empty{margin:0}
+.pathLine{display:flex;align-items:center;gap:10px;margin:6px 0 12px}
+.pathLine code{flex:1;min-width:0;overflow-wrap:anywhere;background:var(--bg-input);border:1px solid var(--line2);
+  border-radius:6px;padding:6px 9px;font-size:12px;color:var(--ink-pathline-code)}
+
+/* --- word-tick readout --------------------------------------------------- */
+/* Floats over the canvas so it can name the syllable under the cursor and show
+   its exact time. It lives in the DOM, not on the canvas: text there would have
+   to be measured and wrapped by hand and could not leave the canvas bounds. */
+.waveframe{position:relative}
+#waveTip{position:absolute;z-index:5;pointer-events:none;max-width:280px;
+  background:var(--bg-wavetip);border:1px solid var(--edge-wavetip);border-radius:7px;padding:6px 9px;
+  font-size:12px;line-height:1.5;color:var(--ink-wavetip);box-shadow:0 6px 18px var(--shadow-wavetip)}
+#waveTip[hidden]{display:none}
+#waveTip b{color:var(--ink-highlight);font-weight:600}
+#waveTip .tipTime{font-family:ui-monospace,Consolas,monospace;color:var(--ink-pathline-code)}
+#waveTip .tipDelta{font-family:ui-monospace,Consolas,monospace;margin-left:6px}
+#waveTip .tipDelta.plus{color:var(--ink-wavetip-tipdelta-plus)}
+#waveTip .tipDelta.minus{color:var(--ink-wavetip-tipdelta-minus)}
+#waveTip .tipHint{color:var(--ink-wavetip-tiphint);margin-left:6px}
+
+/* --- word editors: the action bar must never leave the screen -------------
+   A long line makes the cell grid tall, and the dialog had no height cap, so
+   取消/应用 could be pushed below the viewport — where they look broken rather
+   than merely off-screen. Fixed header, scrolling body, pinned footer. */
+dialog.wordBox{max-height:min(88vh,780px);display:flex;flex-direction:column;overflow:hidden}
+dialog.wordBox .wordGrid{flex:1 1 auto;min-height:80px;max-height:none}
+dialog.wordBox h2, dialog.wordBox > p.hint{flex:none}
+dialog.wordBox .wordFoot{flex:none}
+dialog.wordBox .dialogActions{flex:none;position:sticky;bottom:0;padding-top:10px;
+  background:linear-gradient(180deg,var(--fade-panel),var(--panel) 34%)}
+dialog.wordBox .dialogActions .button{min-width:132px}
+
+/* --- a closed <dialog> must never render ---------------------------------
+   `dialog.wordBox` above sets `display:flex` so the tall cell grid can scroll
+   between a fixed header and a pinned action bar. That is an AUTHOR rule, and
+   author rules outrank the user-agent sheet whatever the specificity, so it
+   overrides the engine's own `dialog:not([open]){display:none}`.
+   A closed dialog would then keep rendering: absolutely positioned at its place
+   in the document (right before the footer), horizontally centred, with NO
+   ::backdrop — a stray panel glued to the bottom of the page, on which
+   `close()` appears to do nothing. `!important` keeps this invariant
+   independent of which rule comes later in this file (the same order trap as a
+   script binding an element that has not been parsed yet). An [open] dialog is
+   unaffected. */
+dialog:not([open]){display:none !important}

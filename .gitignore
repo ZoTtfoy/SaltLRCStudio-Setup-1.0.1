@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+build/
+dist/
+*.egg-info/
+models/
+.saltlrc-cache/
+*.wav
+*.mp3
+*.flac
+*.saltlrc.json

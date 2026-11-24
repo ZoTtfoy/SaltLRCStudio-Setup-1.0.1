@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "saltlrc-studio"
+version = "1.0.5"
+description = "Salt Player lyric workbench: online bilingual lyrics with word-level timing"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+asr = ["faster-whisper==1.2.1", "langid==1.1.6"]
+heart = ["torch>=2.5,<3", "transformers>=4.45,<5", "numpy>=1.26,<3", "langid==1.1.6"]
+
+[project.scripts]
+saltlrc = "saltlrc.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["saltlrc*"]
+
+[tool.setuptools.package-data]
+saltlrc = ["web/*"]

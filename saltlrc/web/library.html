@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SaltLRC Studio · 联网查找字词</title><link rel="icon" type="image/png" href="/favicon.png"><link rel="stylesheet" href="/style.css"><script>/* 主题：首屏之前先定下来，避免先画一帧深色再变浅色。设置是权威，这里读的只是上一次的缓存。 */try{var t=localStorage.getItem('saltlrc-theme');if(t==='light')document.documentElement.dataset.theme='light';}catch(e){}</script></head>
+<body><header><div><small>联网查找字词 · <span id="appVersion">v0.7</span></small><h1>SaltLRC <span>Studio</span></h1></div><p>按歌名 / 歌手联网查找原文与翻译，也可以从 Salt Player 曲库挑歌<br>主歌词逐字 · 翻译整行不带逐字时间</p></header>
+<nav>
+  <button id="reload">刷新曲库</button>
+  <input id="filter" placeholder="筛选标题 / 艺术家 / 专辑" aria-label="筛选曲库">
+  <label class="secondary" style="display:flex;align-items:center;gap:6px;padding:9px 12px;border-radius:6px"><input id="hideDone" type="checkbox">只看缺歌词</label>
+  <span id="libraryState" class="hint">尚未读取曲库</span>
+  <a class="button secondary" href="/studio.html" style="text-decoration:none">波形编辑器</a>
+</nav>
+<div id="message" role="status">点击「刷新曲库」读取 Salt Player 的歌曲列表。</div>
+<main>
+<aside>
+  <h2>曲库 <span id="count">0</span></h2>
+  <div class="toolbar"><button id="selectAll">全选显示项</button><button id="selectNone">清空选择</button></div>
+  <div id="queue"></div>
+  <details class="helpBox" open>
+    <summary>左侧列表怎么用？</summary>
+    <ul>
+      <li><b>勾选方框</b>：把这首歌加进「批量匹配所选」</li>
+      <li><b>点歌名</b> 或右侧的 <b>编辑</b>：打开这首歌单独处理</li>
+      <li><b>批量</b>：只写入评分达标的匹配；低分会标「待确认」，不会猜测写入</li>
+    </ul>
+  </details>
+</aside>
+<section>
+  <div class="titlebar"><h2 id="currentTitle">未选择歌曲</h2><span id="currentMeta" class="hint"></span></div>
+
+  <details open><summary>联网搜索歌词</summary>
+  <div class="toolbar" style="margin-top:12px">
+    <input id="query" placeholder="搜索关键词，默认 标题 + 艺术家" style="flex:1;min-width:220px">
+    <button id="search">搜索</button>
+    <label>来源 <select id="provider"></select></label>
+    <label>结果 <input id="limit" type="number" min="3" max="30" value="12" style="width:70px"></label>
+    <button id="loginOpen" class="button" title="登录网易云后可用真实逐字时间与完整翻译">登录网易云…</button>
+    <span id="loginState" class="hint"></span>
+  </div>
+  <p id="providerNote" class="hint"></p>
+  <div id="candidates"></div>
+  <p class="hint">在结果里点某一行的「载入歌词」选用该条；列表按匹配分排序，分数低于 45 的会标注「偏低」，建议人工核对时长与艺术家。</p>
+  <p class="hint">只有网易云提供真实逐字（YRC）时间，且需要登录；其他来源是逐行歌词，逐字时间由本地按字符权重估算，行首行尾仍是真实时间。登录只是提升质量，不登录也能用全部来源。</p>
+  </details>
+
+  <details><summary>手动添加歌词</summary>
+  <p class="hint">主歌词必须带 <code>[mm:ss.xx]</code> 时间。翻译可粘贴带时间的 LRC，也可只粘贴纯文本（行数需与主歌词一致，按顺序配对）。</p>
+  <div class="manual">
+    <label>主歌词（原文，带时间）<textarea id="manualMain" rows="7" spellcheck="false" placeholder="[00:14.105]梅雨明けの空滲む街"></textarea></label>
+    <label>翻译（带时间或纯文本）<textarea id="manualTrans" rows="7" spellcheck="false" placeholder="梅雨过后 天空氤氲的街道"></textarea></label>
+  </div>
+  <div class="toolbar"><button id="manualApply">解析手动歌词</button><label><input id="dropCredits" type="checkbox" checked>移除作词/作曲等Credits行</label></div>
+  </details>
+
+  <details><summary>逐字与导出选项</summary>
+  <div class="toolbar" style="margin-top:12px">
+    <label>逐字粒度 <select id="unit"><option value="smart" selected>智能（英文按单词 / 日文按音组）</option><option value="word">英文按单词（日文逐字）</option><option value="char">逐字符（最细）</option></select></label>
+    <label>句尾占间隙 <input id="tail" type="number" min="0.4" max="1" step="0.05" value="0.95" style="width:80px"></label>
+    <label>最长行 ms <input id="maxLine" type="number" min="1000" max="30000" step="500" value="12000" style="width:90px"></label>
+    <label><input id="transStamp" type="checkbox" checked>翻译行带句首时间</label>
+    <label><input id="overwrite" type="checkbox">覆盖已有歌词（自动备份 .bak）</label>
+  </div>
+  <div class="toolbar">
+    <label>导出格式 <select id="format"><option value="salt">Salt 逐字双语 LRC（.lrc）</option><option value="lrc">标准双语 LRC 逐行（.lrc）</option><option value="yrc">YRC 逐字 JSON（.yrc）</option></select></label>
+    <label>编码 <select id="encodingOut"><option value="utf-8">UTF-8</option><option value="utf-8-bom">UTF-8 带 BOM</option></select></label>
+  </div>
+  <p class="hint">YRC 是网易云的逐字 JSON，只含主歌词、不含翻译，且 Salt Player 不读 <code>.yrc</code>；要让播放器显示歌词请选 LRC。带 BOM 的 UTF-8 是为了兼容按本地编码猜文件编码的旧编辑器，播放器端通常不需要。</p>
+  </details>
+
+  <div id="problems" hidden>
+    <div class="titlebar"><h3 style="margin:0">需要处理的问题</h3><span id="problemCount" class="hint"></span></div>
+    <p class="hint">点「定位」会跳到下面表格里对应的那一行，改完再点「生成逐字预览」重算。</p>
+    <div id="problemList"></div>
+  </div>
+
+  <h3>下一步做什么</h3>
+  <ol class="steps">
+    <li><button id="build">① 生成逐字预览</button><span>按上面的选项重算逐字时间轴。改了任何选项都要重新生成一次。</span></li>
+    <li><button class="button" id="save">② 写入歌曲目录</button><span>生成 .lrc 放到歌曲文件旁边，Salt Player 直接读。写入后会显示完整路径，可一键打开所在文件夹。</span></li>
+    <li><button id="exportFolder">③ 导出到其他文件夹…</button><span>不想放在歌曲旁边？选一个文件夹把 .lrc 存过去。</span></li>
+    <li><button id="batch">④ 批量匹配所选</button><span>对左侧<b>勾选</b>的歌曲逐首联网搜索并自动写入歌词，不用一首一首点。勾选在左上角「批量」一列。</span></li>
+  </ol>
+  <div id="saveResult" hidden></div>
+  <p id="buildState" role="status">尚未生成</p>
+
+  <div class="tablewrap"><table><thead><tr><th style="width:96px">时间</th><th>主歌词（逐字）</th><th style="width:26%">翻译（整行）</th></tr></thead><tbody id="rows"></tbody></table></div>
+
+  <details><summary>完整检查结果（含提示）</summary><pre id="report">暂无检查结果</pre></details>
+  <details><summary>导出文本预览</summary><pre id="text"></pre></details>
+  <div id="batchResults"></div>
+</section></main>
+<dialog id="loginDialog">
+  <h3 style="margin-top:0">登录网易云音乐</h3>
+  <p class="hint">登录只影响歌词质量：登录后能拿到网易云的真实逐字（YRC）时间与完整翻译；不登录也能搜索和使用全部歌词来源。凭据保存在本机文件，不会上传到任何地方。</p>
+  <div class="toolbar" role="tablist">
+    <button id="tabQr" class="button" role="tab">扫码登录</button>
+    <button id="tabPassword" class="button" role="tab">手机号 + 密码</button>
+    <button id="tabSms" class="button" role="tab">手机号 + 验证码</button>
+  </div>
+
+  <div id="paneQr">
+    <div id="qrBox" class="qrhint">点下面的按钮生成二维码，用网易云音乐 App 扫码。</div>
+    <div class="toolbar"><button id="qrStart">生成二维码</button></div>
+    <p id="qrState" class="hint"></p>
+  </div>
+
+  <div id="panePassword" hidden>
+    <label>国家区号 <input id="pwCountry" value="86" style="width:70px"></label>
+    <label>手机号 <input id="pwPhone" placeholder="手机号" style="width:150px"></label>
+    <label>密码 <input id="pwPassword" type="password" placeholder="密码" style="width:150px"></label>
+    <div class="toolbar"><button id="pwSubmit">登录</button></div>
+  </div>
+
+  <div id="paneSms" hidden>
+    <label>国家区号 <input id="smsCountry" value="86" style="width:70px"></label>
+    <label>手机号 <input id="smsPhone" placeholder="手机号" style="width:150px"></label>
+    <button id="smsSend">发送验证码</button>
+    <label>验证码 <input id="smsCaptcha" placeholder="验证码" style="width:110px"></label>
+    <div class="toolbar"><button id="smsSubmit">登录</button></div>
+    <p class="hint">验证码有有效期，收不到就重新发送一次。</p>
+  </div>
+
+  <p id="loginMessage" class="hint" role="status"></p>
+  <div class="toolbar">
+    <button id="loginLogout" class="button">退出登录</button>
+    <button id="loginClose" class="button">关闭</button>
+  </div>
+</dialog>
+<dialog id="wordEditDialog" class="wordBox"><h2 id="wordLineText">逐字时间</h2><p class="hint">每格 = 一个字/词：上面是字（只读），下面是它的开始时间（秒，精确到毫秒），最下面是句尾时间。相同毫秒允许（快歌词很常见），只要不倒退就能应用；点「应用」后立即生效并重新检查。</p><div id="wordGrid" class="wordGrid"></div><label class="axisInput">句尾（秒）<input id="wordEnd" type="number" step="0.001" min="0"></label><p id="wordEditError" role="alert" class="hint"></p><div class="toolbar dialogActions"><button class="button" id="applyWords">应用逐字时间</button><button id="closeWordEdit">取消</button></div></dialog>
+<footer>歌词来源：网易云音乐、LRCLIB、QQ 音乐、酷狗、酷我 · 只有网易云提供真实逐字时间（需登录），其余为逐行歌词、逐字时间本地估算 · 全部处理在本机完成<a class="debugLink" href="/debug.html" title="仅本机可用，需要调试密码">调试</a><a class="debugLink" href="#" id="exitApp">退出</a></footer>
+<script>
+// The packaged build has no console, so browser-side failures are forwarded to
+// the backend journal and listed on the debug page instead of vanishing.
+(function () {
+  var sent = 0;
+  function report(message, stack) {
+    if (sent++ > 20) return;
+    var body = JSON.stringify({message: message, stack: String(stack || '').slice(0, 2000), source: location.pathname});
+    fetch('/api/debug/client-error', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: body}).catch(function () {});
+  }
+  window.addEventListener('error', function (event) {
+    if (event.target && event.target !== window && event.target.src) { report('资源加载失败 ' + event.target.src, ''); return; }
+    report(event.message || '未知脚本错误', event.error && event.error.stack);
+  }, true);
+  window.addEventListener('unhandledrejection', function (event) {
+    var reason = event.reason;
+    report((reason && reason.message) || String(reason), reason && reason.stack);
+  });
+})();
+</script>
+<script src="/trace.js"></script><script src="/theme.js"></script><script src="/common.js"></script><script src="/notify.js"></script><script src="/splitter.js"></script><script src="/library.js"></script>
+</body></html>

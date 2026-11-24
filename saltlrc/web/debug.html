@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>诊断 · SaltLRC Studio</title><link rel="stylesheet" href="/style.css"></head>
+<body><header><div><small>DIAGNOSTICS · 内部页面</small><h1>后端诊断 <span>Debug</span></h1></div><p>本页只在本机可用 · 不在任何导航里出现</p></header>
+<main><section>
+  <div id="gate">
+    <h3>需要调试密码</h3>
+    <p class="hint">调试接口**默认关闭**。要打开：设置环境变量 <code>SALTLRC_DEBUG_PASSWORD=你的口令</code> 后重启程序，再在这里输入同一个口令解锁。口令只在本机校验，不会上传。（早年那个写死的 <code>saltlrc</code> 默认口令已经移除 —— 写在手册里的口令不算口令。）</p>
+    <div class="toolbar"><input id="password" type="password" placeholder="调试密码" aria-label="调试密码"><button class="button" id="unlock">解锁</button><span id="gateError" role="alert" class="hint"></span></div>
+  </div>
+  <div id="panel" hidden>
+    <div class="titlebar"><h2 style="margin:0">运行状态</h2><span class="inlineGroup">
+      <button id="refresh">刷新</button><button id="bundle">导出诊断包</button>
+      <button id="openFolder">打开日志文件夹</button><button class="button" id="exit">退出程序</button>
+      <label class="axisInput"><input id="auto" type="checkbox">每 5 秒自动刷新</label>
+    </span></div>
+    <pre id="overview">载入中…</pre>
+    <h3>最近错误（含出错代码与调用栈）</h3>
+    <div id="errors" class="scrolly"><p class="hint">没有记录到错误。</p></div>
+    <h3>最近的操作（接口调用，按时间倒序）</h3>
+    <div id="requests" class="scrolly"></div>
+    <h3>运行日志</h3>
+    <div id="logBox" class="scrolly"></div>
+    <p class="hint">「导出诊断包」会生成一个 zip（环境信息 + 运行日志 + 最近操作 + 错误与调用栈），
+    存在日志文件夹里，可直接发给别人排查。</p>
+  </div>
+</section></main>
+<footer>SaltLRC Studio 诊断页 · 数据只保存在本机</footer>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const token = () => sessionStorage.getItem('saltlrc-debug-token') || '';
+const esc = (text) => String(text).replace(/[&<>]/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;'}[c]));
+
+async function call(path, body) {
+  const options = {headers: {'X-Debug-Token': token()}};
+  if (body !== undefined) {
+    options.method = 'POST';
+    options.headers['Content-Type'] = 'application/json';
+    options.body = JSON.stringify(body);
+  }
+  const response = await fetch(path, options);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw Error(data.error || ('HTTP ' + response.status));
+  return data;
+}
+
+function render(data) {
+  const up = data.uptime >= 3600 ? (data.uptime / 3600).toFixed(1) + ' 小时'
+           : data.uptime >= 60 ? Math.round(data.uptime / 60) + ' 分钟' : data.uptime + ' 秒';
+  const last = data.requests.length ? data.requests[data.requests.length - 1] : null;
+  $('overview').textContent = [
+    '程序版本   ' + data.version + (data.frozen ? '（打包版）' : '（源码运行）'),
+    '运行时长   ' + up,
+    '监听地址   127.0.0.1:' + data.port + '（仅本机）',
+    '上一次操作 ' + (last ? last.time + '  ' + last.method + ' ' + last.path +
+                     '  → ' + last.status + '（' + last.ms + 'ms）' : '还没有接口调用'),
+    'Python     ' + data.python,
+    '系统       ' + data.platform,
+    '日志文件夹 ' + (data.log_dir || ''),
+    '日志文件   ' + data.log_file,
+    '记录条数   日志 ' + data.log.length + ' · 操作 ' + data.requests.length + ' · 错误 ' + data.errors.length,
+  ].join('\n');
+  const errorBox = $('errors');
+  errorBox.replaceChildren();
+  if (!data.errors.length) errorBox.innerHTML = '<p class="hint">没有记录到错误。</p>';
+  for (const item of [...data.errors].reverse()) {
+    const entry = document.createElement('details');
+    const summary = document.createElement('summary');
+    summary.textContent = item.time + ' · ' + item.message.slice(0, 120);
+    const body = document.createElement('pre');
+    body.textContent = item.message + (item.traceback ? '\n' + item.traceback : '');
+    entry.append(summary, body);
+    errorBox.append(entry);
+  }
+  const requestBox = $('requests');
+  requestBox.replaceChildren();
+  if (!data.requests.length) requestBox.innerHTML = '<p class="hint">还没有请求记录。</p>';
+  for (const item of [...data.requests].reverse().slice(0, 120)) {
+    const row = document.createElement('div');
+    row.className = 'proposal';
+    const tone = item.status < 400 ? '#2f8068' : item.status < 500 ? '#c07a2a' : '#c0554a';
+    row.innerHTML = '<span style="color:' + tone + ';font-family:Consolas,monospace">' +
+      esc(item.time + '  ' + item.method + ' ' + item.status + '  ' + item.path + '  ' + item.ms + 'ms</span>');
+    requestBox.append(row);
+  }
+  $('logBox').textContent = data.log.slice(-400).join('\n') || '（暂无日志）';
+}
+
+async function refresh() {
+  try { render(await call('/api/debug/state')); }
+  catch (error) {
+    if (String(error.message).includes('调试密码')) { sessionStorage.removeItem('saltlrc-debug-token'); showGate('登录已过期，请重新输入密码'); }
+    else $('gateError').textContent = error.message;
+  }
+}
+
+function showGate(message) {
+  $('gate').hidden = false; $('panel').hidden = true;
+  $('gateError').textContent = message || '';
+}
+
+$('unlock').onclick = async () => {
+  try {
+    const data = await call('/api/debug/auth', {password: $('password').value});
+    sessionStorage.setItem('saltlrc-debug-token', data.token);
+    $('gate').hidden = true; $('panel').hidden = false; refresh();
+  } catch (error) { showGate(error.message); }
+};
+$('password').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('unlock').click(); });
+$('refresh').onclick = refresh;
+setInterval(() => { if ($('auto').checked && !$('panel').hidden) refresh(); }, 5000);
+$('bundle').onclick = async () => {
+  try { const data = await call('/api/debug/bundle', {}); alert('诊断包已生成：\n' + data.path); }
+  catch (error) { alert('导出失败：' + error.message); }
+};
+$('openFolder').onclick = () => call('/api/debug/open-folder', {})
+  .catch((error) => alert('打开失败：' + error.message));
+$('exit').onclick = () => {
+  if (!confirm('确定退出 SaltLRC Studio 后端？界面将停止工作。')) return;
+  call('/api/exit', {}).then(() => { document.title = '已退出'; $('overview').textContent = '后端已退出，本页不再有响应。'; })
+                       .catch((error) => alert(error.message));
+};
+
+if (token()) { $('gate').hidden = true; $('panel').hidden = false; refresh(); }
+</script></body></html>

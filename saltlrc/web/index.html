@@ -1,0 +1,375 @@
+﻿<!doctype html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SaltLRC Studio · 波形编辑器</title><link rel="icon" type="image/png" href="/favicon.png"><link rel="stylesheet" href="/style.css"><script>/* 主题：首屏之前先定下来，避免先画一帧深色再变浅色。设置是权威，这里读的只是上一次的缓存。 */try{var t=localStorage.getItem('saltlrc-theme');if(t==='light')document.documentElement.dataset.theme='light';}catch(e){}</script></head>
+<body><header id="appHeader" data-bar="appHeader"><span class="brand">SaltLRC <b>Studio</b></span><small id="appVersion" title="当前版本">v0.11</small><span class="spacer"></span><span class="hint">双轨波形编辑 · 本机音频对齐 · 逐字主歌词 / 翻译整行</span></header>
+<nav id="appNav" data-bar="appNav">
+  <div class="cluster">
+    <button class="button" id="pickLibrary" title="打开 Salt Player 曲库，选一首歌把歌词和音频一起带进编辑器">曲库</button>
+    <label class="button" title="打开歌词（.lrc/.yrc）、音频，或 .saltproj 工程文件；也可以把文件直接拖进窗口">打开…<input id="files" type="file" multiple accept=".lrc,.lar,.spl,.spw,.json,.saltproj,audio/*" hidden></label>
+    <label class="button" title="一次导入一个文件夹里的歌词与音频">文件夹<input id="folder" type="file" webkitdirectory multiple hidden></label>
+    <button id="demo" title="载入一份带合成节拍音频的示例歌词">示例</button>
+  </div>
+  <span class="sep" aria-hidden="true"></span>
+  <div class="cluster">
+    <button class="button" id="export" title="把当前编辑好的歌词另存为 .lrc / .yrc —— 只有歌词，不含音频；会弹出对话框让你选保存位置（默认从这首歌自己的文件夹开始）">导出歌词</button>
+    <button id="zip" title="把队列里的歌批量导出为一个 ZIP">批量 ZIP</button>
+    <button id="save" title="把歌词、逐字时间、翻译与歌名存成 .saltproj 工程文件；会弹出对话框让你选保存位置">保存工程</button>
+    <label class="inline" title="保存工程时把音频一起打包（文件约音频的 1.35 倍）；不勾选则打开工程后需重新添加同名音频。只影响「保存工程」，不影响「导出歌词」"><input id="embedAudio" type="checkbox" checked>内嵌音频</label>
+  </div>
+  <span class="spacer"></span>
+  <div class="cluster">
+    <label class="inline" title="非 UTF-8 的歌词文件按这里选的编码读入">编码<select id="encoding"><option value="">自动</option><option value="utf-8-sig">UTF-8</option><option value="gb18030">GB18030</option><option value="shift_jis">Shift-JIS</option><option value="utf-16">UTF-16</option></select></label>
+    <a class="button" href="/library" title="联网查找歌词与翻译：可以按歌名/歌手搜，也可以从曲库挑歌，批量匹配后写回歌曲目录">联网查找字词</a>
+    <button id="settings" title="外观、AI 翻译、功能开关与按键绑定">设置</button>
+    <button id="help" title="快捷键与操作说明（F1）">帮助</button>
+  </div>
+</nav>
+<!-- 状态行 + 「打开所在文件夹」：导出之后可以立刻找到那个文件。
+     这个按钮**只在你点了才动作**。 -->
+<div id="statusBar" data-bar="statusLine"><span id="message" role="status">导入歌词和同名音频，或载入示例开始编辑。</span><button id="revealLast" hidden title="在资源管理器里显示刚才导出的文件">打开所在文件夹</button></div>
+<main id="appMain"><aside id="queuePane" data-bar="queuePane"><h2>队列 <span id="count">0</span></h2><div id="queue"></div>
+  <p class="hint">点上方「从曲库导入」挑歌，或直接拖入歌词 / 音频 / <code>.saltproj</code> 工程。
+  快捷键与全部操作说明在顶部<strong>帮助</strong>里，按 <kbd>F1</kbd> 也能打开。</p>
+  <details open><summary>操作历史（可回到任意一步）</summary>
+    <div id="historyList"></div>
+    <div class="toolbar"><button id="undoStep">撤销</button><button id="redoStep">重做</button><button id="restoreSession" hidden>恢复上次会话</button><button id="clearSession">清空会话</button></div>
+    <p class="hint">编辑会自动保存到浏览器。<strong>正常退出会清空</strong>，所以每次启动都是空队列；
+    只有在没有正常退出（例如被强制关掉）时，下次才会出现「恢复上次会话」。</p>
+  </details>
+</aside>
+<section>
+  <div class="titlebar">
+    <h2 id="title">歌词工作区</h2>
+    <span class="inlineGroup">
+      <label class="inline">格式 <select id="format" aria-label="导出格式"><option value="salt">Salt 逐字双语 LRC</option><option value="lrc">标准双语 LRC 逐行</option><option value="yrc">YRC 逐字 JSON 仅主歌词</option></select></label>
+      <label class="inline">编码 <select id="encodingOut" aria-label="导出编码"><option value="utf-8">UTF-8</option><option value="utf-8-bom">UTF-8 带 BOM</option></select></label>
+    </span>
+  </div>
+  <nav class="tabs" id="tabBar" data-bar="tabBar" role="tablist">
+    <button class="tab active" data-pane="wave" role="tab">波形编辑</button>
+    <button class="tab" data-pane="align" role="tab">识别与对齐</button>
+    <button class="tab" data-pane="project" role="tab">检查与工程</button>
+  </nav>
+
+  <div class="pane active" id="wavePane" data-bar="wavePane" data-pane="wave">
+    <div id="matchPanel" hidden>
+      <div class="titlebar"><h3 style="margin:0">为这首音频锚定歌词</h3><button id="matchClose">收起</button></div>
+      <p id="matchNotes" class="hint"></p>
+      <div class="toolbar"><button class="button" id="matchLocal" hidden>使用 Salt Player 曲库里的歌词</button><span id="matchParsed" class="hint"></span></div>
+      <div id="matchCandidates"></div>
+      <details><summary>手动粘贴歌词</summary>
+        <div class="manual">
+          <label>主歌词（原文，必须带 [mm:ss.xx] 时间）<textarea id="matchMain" rows="6" spellcheck="false"></textarea></label>
+          <label>翻译（可选：带时间的 LRC，或与主歌词行数一致的纯文本）<textarea id="matchTrans" rows="6" spellcheck="false"></textarea></label>
+        </div>
+        <div class="toolbar"><button class="button" id="matchApply">解析并载入</button>
+          <label>搜索来源 <select id="matchProvider"></select></label>
+          <button id="matchResearch">按文件名重新搜索</button></div>
+      </details>
+    </div>
+    <div id="preview" data-bar="lyricPreview" aria-live="polite">
+      <div class="prow dim" id="previewPrev"></div>
+      <div class="prow now" id="previewMain">等待载入歌词</div>
+      <div class="prow trans" id="previewTranslation"></div>
+      <div class="prow dim" id="previewNext"></div>
+      <button id="karaoke" title="全屏卡拉OK预览">⤢ 全屏</button>
+    </div>
+    <!-- No `controls` attribute on purpose. The browser's native media bar is
+         drawn with the OS/browser colour scheme, so on a dark page it comes out
+         as a bright 40px band across the whole pane. The transport below
+         replaces it: same functions, our own colours, and it can never be
+         restyled out from under us. `color-scheme: dark` in style.css covers
+         every OTHER native widget. -->
+    <audio id="audio"></audio>
+    <div class="wavebar" id="transportBar" data-bar="transportBar">
+      <button id="playPause" title="播放 / 暂停（空格）">▶ 播放</button>
+      <span id="playTime" class="clock">0:00 / 0:00</span>
+      <label class="inline" title="音量只影响本机试听，不会写进导出的歌词">音量
+        <input id="volume" type="range" min="0" max="100" step="1" value="100" aria-label="音量">
+        <span id="volumeValue" class="clock">100%</span></label>
+      <!-- 倍速：慢放用来听清字的起音位置（打点仍然记**真实时间**，不受倍速影响）。
+           选项由 studio.js 的 SPEEDS 生成 —— 合法范围只在那一个地方定义。 -->
+      <label class="inline" title="试听速度。慢放时按 Enter 打点记录的仍是音频里的真实时间">倍速
+        <select id="speed" aria-label="试听速度"></select></label>
+      <!-- 反复播放：暂停后再按播放，回到**这次开始播放的位置**重播这一段。
+           和设置里的「从暂停点继续」是同一个手势的两种答案，所以优先级写死为
+           **反复优先**（开着它时那条开关不参与判断）。改这里先读 togglePlay()。 -->
+      <label class="inline" title="反复播放：暂停后再按播放，回到这次开始播放的位置重播这一段（优先于设置里的「从暂停点继续」）">
+        <input id="repeat" type="checkbox">反复</label>
+      <span id="audioInfo">添加音频查看波形</span>
+      <label class="inline"><input id="linkTracks" type="checkbox" checked>双轴联动</label>
+      <label class="inline"><input id="follow" type="checkbox" checked>跟随播放</label>
+      <label class="inline">缩放 <input id="zoom" type="range" min="0" max="100" step="1" value="18" aria-label="缩放（0 = 全曲，100 = 最细）"><input id="zoomInput" type="number" min="20" max="400" step="1" value="90" title="每秒钟像素数（滑块的百分比换算而来）">px/s</label>
+      <label class="inline"><input id="perf" type="checkbox">调试面板</label>
+    </div>
+    <canvas id="songStrip" data-bar="songStrip" class="songstrip" aria-label="整首歌进度条：点击跳转播放位置，拖动亮框平移视窗"></canvas>
+    <div class="waveframe" id="wavePaneFrame" data-bar="waveFrame">
+      <div id="waveTip" hidden></div><canvas id="waveCanvas" aria-label="音频波形与双轨时间轴"></canvas></div>
+
+    <!-- 编辑坞（#editDock）：编辑区里的一行，按用途分组、组间用 .sep 细线分隔。
+         撤销 重做 添加行 整体偏移 应用ms │ 检查歌词 │ AI 翻译（本行/缺失行）
+         ↑「AI 翻译」这两个按钮翻译**当前已加载的歌词**，固定跟在「检查歌词」之后
+          （同属"只跟这首歌有关"那一栏）。新增控件先归到对应组，不要平铺。 -->
+    <div class="toolbar" id="editDock" data-bar="editDock">
+      <button id="undo">撤销</button><button id="redo">重做</button>
+      <button id="add" title="与每行的「＋插入」同一功能：在选中行下方插入一行空白歌词；未选中任何行时按当前时间轴（播放位置）插入">添加行</button>
+      <label class="inline">整体偏移 <input id="offset" type="number" value="0" aria-label="整体偏移毫秒"></label><button id="shift">应用 ms</button>
+      <span class="spacer"></span>
+      <button id="check" title="检查这首歌能不能正确导出：把导出时会拒绝的问题提前列出来（时间轴倒退、逐字缺失等），结果显示在「检查与工程」页的「需要处理的问题」里，每条都能点「定位」跳到表格那一行">检查歌词</button>
+      <span class="sep" aria-hidden="true"></span>
+      <!-- ↓↓ 这两个按钮翻译「当前已加载的歌词」（走 /api/translate：不联网找歌词、不碰音频）。
+           固定在「检查歌词」之后；改顺序前先读 docs/WINDOW_STRUCTURE.md 第三节「editDock」。 ↓↓ -->
+      <button id="aiTranslate" title="用 AI 翻译当前已加载的歌词：翻译正在编辑的这一行（接口与 Key 在「设置 → AI 翻译」里填）。先播放定位到某一行，或点表格选中一行">AI 翻译本行</button>
+      <button id="aiTranslateAll" title="用 AI 翻译当前已加载的歌词：只补上全曲里还没有翻译的行（逐行请求，可能耗时；接口与 Key 在「设置 → AI 翻译」里填）">翻译全曲缺失行</button>
+    </div>
+    <div class="tablewrap" id="lyricTable" data-bar="lyricTable"><table><thead><tr><th>句首 / 秒</th><th>主歌词</th><th>翻译</th><th>操作</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </div>
+
+  <div class="pane" id="alignPane" data-bar="alignPane" data-pane="align">
+    <div class="toolbar">
+      <label class="inline">贴唱轨道 <select id="sourceTrack"><option value="auto">自动选择</option><option value="main">主轨</option><option value="translation">翻译轨</option></select></label>
+      <label class="inline" title="每个句首最多允许挪这么多毫秒去找人声起点；调小＝更保守">最大移动量 ms <input id="maxShift" type="number" min="500" max="20000" step="500" value="8000"></label>
+      <span class="hint" id="fitEngineState">本机能量贴唱（全离线，不需要下载任何模型）</span>
+      <span id="languages" class="hint">语言待识别</span>
+    </div>
+    <div class="toolbar">
+      <!-- 一个按钮跑完整首：识别（找**人声**起点，不是随便什么能量上升）→ 对齐
+           （所有行在一起走一条单调路径）。它覆盖了"分析当前音频"与"整首行首对齐"
+           这两件事；行内逐字在逐字编辑器里做。 -->
+      <button class="button" id="smartFit" title="按本机能量分析找出人声起点，把整首歌词的句首/句尾一次贴好；结果先作为预览，确认后再应用（可撤销）">智能贴唱</button>
+      <label class="inline" title="打开后：波形上叠加贴唱结果，播放时高亮/预览条也按贴后的时间走 —— 可以播放着核对是否贴合；关掉只看原稿"><input id="fitPreview" type="checkbox" checked>预览</label>
+      <button id="fitApply" title="把预览的贴唱结果写进歌词（可撤销）">应用贴唱</button>
+      <button id="fitDiscard" title="丢弃这次的贴唱结果，回到原稿">丢弃</button>
+      <button id="saveTranscript" title="把这次的分析结果存成 JSON 文件（结果不对时方便发回来核对）">保存分析结果</button>
+    </div>
+    <p id="fitState" role="status">还没贴唱。点「智能贴唱」把整首歌词的句首/句尾贴到人声上。</p>
+    <p id="fitReport" class="hint"></p>
+    <div id="fitList"></div>
+  </div>
+
+  <div class="pane" id="projectPane" data-bar="projectPane" data-pane="project">
+    <h3>格式检查</h3><div class="reportBox" id="report">暂无检查结果</div>
+    <h3>元数据 / 待处理原文</h3><pre id="metadata"></pre>
+    <h3>工程的保存位置</h3>
+    <p id="projectCount" class="hint">每导入一个音频/歌词文件就会在这里建一个工程。</p>
+    <p class="pathLine"><code id="projectRoot">未设置（本次不会自动保存工程）</code>
+      <button id="projectChange" title="选择另一个文件夹放工程">设置保存位置…</button></p>
+    <details><summary>导出说明</summary><p class="hint">主歌词每个字一个时间戳并以句尾结束；翻译整行，只带与主句相同的句首时间。YRC 是网易云逐字 JSON，不含翻译，Salt Player 不读 .yrc。UTF-8 无 BOM 是播放器最稳的组合；带 BOM 只给按本地编码猜编码的旧编辑器用。</p></details>
+  </div>
+</section></main>
+<div id="karaokeView" hidden><div id="karaokeInner"><div class="prow dim" id="karaokePrev"></div><div class="prow now" id="karaokeMain"></div><div class="prow trans" id="karaokeTranslation"></div><div class="prow dim" id="karaokeNext"></div></div><button id="closeKaraoke">关闭（Esc）</button></div>
+<dialog id="textDialog"><h2 id="textTitle">编辑歌词文字</h2><p id="textHint" class="hint"></p><textarea id="textValue" rows="3" spellcheck="false"></textarea><div class="toolbar"><button class="button" id="applyText">应用</button><button id="closeText">取消</button></div></dialog>
+<dialog id="wordDialog" class="wordDialogBox wordBox"><h2 id="wordTitle">逐字 / 逐词时间</h2>
+<p id="wordLineInfo" class="hint"></p>
+<div id="wordChips" class="wordGrid"></div>
+<div class="wordFoot">
+  <label class="inline">句尾 <input id="wordEndTime" type="number" step="0.001" min="0"> 秒</label>
+  <button id="wordEndNow" title="把句尾时间设为当前播放位置">句尾 = 当前</button>
+  <span class="spacer"></span>
+  <label class="inline" title="播放音频，每到该字发声的位置就按一次 Enter">打点模式 <input id="tapMode" type="checkbox" checked> 播放中按 Enter 逐字打点</label>
+</div>
+<p id="wordError" role="alert"></p>
+<p class="hint">每个字的时间<strong>必须递增</strong>，所以某个字最多只能排在下一个字之前。
+想<strong>把间距拉开</strong>：在波形上按住 <kbd>Alt</kbd> 拖动那个字，
+它和后面的字会一起往后走（间距不变）；也可以在这里直接改数字，或用「按字数均分」重排。</p>
+<div class="toolbar dialogActions"><button id="wordAutoSplit" title="按语言智能切字：中文按字、日语按发音（汉字+送假名成组）、英语按单词、韩语按音节；识别不出来时用混合规则">自动分词</button><button id="wordFromAudio" title="按本机能量分析找这一行的发声起点，把字组时间重排成候选（整行的句首/句尾请用「识别与对齐」页的「智能贴唱」）">从音频检测这一行</button><button id="wordSpread" title="把句首到句尾按字数平均分配，作微调起点">按字数均分（参考）</button><button id="mark" title="把当前播放位置打给下一个字">当前时间打点</button><span class="spacer"></span><button class="button" id="applyWords">应用逐字时间</button><button id="closeWords">取消</button></div></dialog>
+<dialog id="libraryDialog" class="wideDialog"><h2>Salt Player 曲库</h2>
+<p class="hint">直接读播放器的曲库数据库。选一首歌 → 歌词和音频一起进编辑器；标「待配歌词」的会自动去查。</p>
+<div class="libbar"><input id="libSearch" type="search" placeholder="搜索标题 / 歌手 / 专辑" aria-label="搜索曲库"><label class="inline"><input id="libMissing" type="checkbox">只看缺歌词</label><span id="libState" class="hint"></span></div>
+<div id="libList" class="libList"></div>
+<div class="toolbar"><span class="spacer"></span><button id="libClose">关闭</button></div></dialog>
+
+<dialog id="settingsDialog" class="settingsBox">
+  <h2>设置</h2>
+  <p class="hint">这些设置只存在本机（<code>%LOCALAPPDATA%\SaltLRCStudio\settings.json</code>）。
+  <strong>改一项就存一项，没有保存按钮</strong>：勾选项与下拉立即生效，文字框在离开输入框或按回车时生效。
+  API Key 只用来向你填的那个接口发起翻译请求：<strong>它不会出现在页面里</strong>，也不会写进任何导出文件。</p>
+
+  <details open><summary>AI 翻译</summary>
+    <div class="setgrid">
+      <label>接口地址 <input id="setBaseUrl" placeholder="https://api.deepseek.com/v1"></label>
+      <label>模型名 <input id="setModel" placeholder="deepseek-chat / gpt-4o-mini"></label>
+      <label>API Key <input id="setApiKey" type="password" placeholder="留空 = 不修改已保存的 Key"></label>
+      <label>目标语言 <select id="setTarget"></select></label>
+      <label class="wide">额外要求（可选，会附加到提示词里）<input id="setInstructions" placeholder="例如：翻译成口语化的中文，保留语气词"></label>
+    </div>
+    <div class="toolbar">
+      <button id="setTest">测试连接</button>
+      <button id="setClearKey">清除已保存的 Key</button>
+      <span id="setKeyState" class="hint"></span>
+    </div>
+    <p class="hint">只要对方兼容 OpenAI 的 <code>/chat/completions</code> 协议就能用（DeepSeek、OpenAI、智谱、通义，以及本机 Ollama / LM Studio 等）。地址填到 <code>/v1</code> 即可，程序会自己补上后面的路径。</p>
+  </details>
+
+  <details open><summary>外观</summary>
+    <div class="setgrid">
+      <label class="inline" title="关掉就是浅色主题；波形、表格与对话框一起换。点保存后生效"><input id="setDark" type="checkbox">深色模式（关掉 = 浅色主题）</label>
+    </div>
+    <p class="hint">颜色只在 <code>style.css</code> 里定义两套：默认是深色，<code>html[data-theme="light"]</code> 是浅色。点「保存」后生效。</p>
+  </details>
+
+  <details open><summary>功能开关</summary>
+    <div class="setgrid">
+      <label class="inline"><input id="setFollow" type="checkbox">播放时表格跟随当前行</label>
+      <label class="inline" title="关掉就是每次按播放都从这首的开头开始"><input id="setResume" type="checkbox">播放/暂停后再按播放，从暂停点继续（关掉则从这首开头）</label>
+      <label class="inline" title="和上一条是同一个手势的两种答案：开着它时以上面这条为准"><input id="setRepeat" type="checkbox">反复播放：暂停后再按播放，回到这次开始播放的位置重播这一段（优先于上一条）</label>
+      <label class="inline"><input id="setTapMode" type="checkbox">逐字编辑器默认开启打点模式</label>
+      <label class="inline"><input id="setConfirmOverwrite" type="checkbox">写入歌曲目录前确认覆盖已有歌词</label>
+      <label class="inline"><input id="setAutoTranslate" type="checkbox">载入歌词后自动翻译缺失的行</label>
+      <label class="inline"><input id="setPerf" type="checkbox">显示性能面板</label>
+    </div>
+  </details>
+
+  <details open><summary>工程文件（.saltproj）</summary>
+    <div class="setgrid">
+      <label class="inline" title="在资源管理器里让 .saltproj 显示本程序自己的图标，并且双击直接用它打开"><input id="setAssoc" type="checkbox">让 .saltproj 显示本程序的图标，双击就用本程序打开</label>
+    </div>
+    <div id="setAssocState" class="hint assocState" role="status">正在读取…</div>
+    <p class="hint">这一项写的是<strong>当前用户</strong>的注册表（<code>HKCU</code>），不需要管理员权限，而且只影响 <code>.saltproj</code> 这一种文件，不动别的关联。
+    取消勾选再点保存即可撤销。保存后图标若没立刻变，是 Windows 的图标缓存 —— 注销一次或重启资源管理器就好。</p>
+  </details>
+
+  <details open><summary>按键绑定</summary>
+    <div id="keyGrid" class="setgrid"></div>
+    <p class="hint">点一下某一格，然后直接按你要用的组合键；<kbd>Backspace</kbd> 清除该绑定，<kbd>Esc</kbd> 取消录入。
+    带 <kbd>Ctrl</kbd> 的组合在 macOS 上按 <kbd>Cmd</kbd> 也可以。</p>
+  </details>
+
+  <p id="settingsError" role="alert"></p>
+  <div class="toolbar"><span id="settingsSaved" class="hint" role="status"></span><span class="spacer"></span><button class="button" id="settingsClose">关闭</button></div>
+</dialog>
+
+<dialog id="helpDialog" class="wideDialog"><h2>帮助</h2>
+<div class="helpBody">
+<h3>试听（走带条）</h3>
+<ul>
+      <li><strong>倍速</strong>：走带条上的「倍速」下拉可放慢到 <code>0.25×</code> 或加快到 <code>3×</code>，
+      放慢用来听清每个字的起音位置；<strong>慢放时按 Enter 打点记录的仍是音频里的真实时间</strong>，
+      不受倍速影响。选过一次会记住，换歌也不会被重置。</li>
+  <li><strong>从暂停点继续</strong>：按了暂停再按播放，接着刚才的位置继续（不会回到开头）。
+      想让每次播放都从头开始，到「设置 → 功能开关」把
+      「播放/暂停后再按播放，从暂停点继续」关掉即可。</li>
+  <li><strong>反复播放（走带条上的「反复」）</strong>：打开后，<strong>暂停再按播放会跳回
+      「这次开始播放的位置」重播</strong> —— 用来反复抠同一句最省事。
+      做法：点波形 / 贴条 / 表格某一行把指针放到这一句的开头（任意位置都行），
+      按播放听一遍，按暂停，再按播放 —— 又从那句开头开始。
+      <br><strong>和上面那条的关系</strong>：它俩是同一个手势的两种答案，
+      所以定了明确优先级：<strong>「反复」开着时以它为准</strong>，
+      「从暂停点继续」不参与判断；关掉「反复」就回到上面那条的行为。</li>
+  <li>点某一行 / 点波形空白 / 点贴条 = 显式换位置；点过之后按播放就从那里开始
+      （这一条不受上面的开关影响，也是「反复播放」重新取起点的方式）。</li>
+</ul>
+<h3>快捷键</h3>
+<p class="hint">下面这些都可以在「设置 → 按键绑定」里改成你习惯的组合。</p>
+<ul>
+  <li><kbd>空格</kbd> 播放 / 暂停（输入框内不受影响）</li>
+  <li><kbd>Enter</kbd> 逐字编辑器打开时：给下一个字打点（打点模式）</li>
+  <li><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd> 撤销 / 重做</li>
+  <li><kbd>F1</kbd> 打开本帮助 · <kbd>Esc</kbd> 关闭对话框 / 退出全屏预览</li>
+</ul>
+<h3>波形编辑</h3>
+<ul>
+  <li><strong>按住歌词块横向拖动</strong> = 整句移动（自动贴住相邻句，不会拖过别的行）；松手前会显示落点。</li>
+  <li><strong>双击歌词块</strong>改文字；字数不变会保留逐字时间，字数变化才清除该行逐字轴。</li>
+  <li>拖动块边缘的<strong>竖线</strong>微调句首 / 句尾；块内部的竖线调逐字时间。</li>
+  <li><strong>改逐字时间</strong>：鼠标移到某个字上，会显示它是<strong>第几个字、字面和时间</strong>，
+  该行的每个字也会浮出小抓手 —— 看得见才点得准。按住拖动时数字跟着光标走，
+  还会显示<strong>相对起点移了多少</strong>。
+    <ul>
+      <li>字与字的时间<strong>必须递增</strong>，所以一个字最多只能拖到下一个字之前。
+      想<strong>把间距拉开</strong>，就<strong>按住 <kbd>Alt</kbd> 再拖</strong>：
+      这个字和它后面的字会一起往后走（间距不变）。</li>
+      <li><strong>单击</strong>某个字可以选中它，然后用 <kbd>←</kbd> <kbd>→</kbd> 微调：
+      每按一次 10ms，按住 <kbd>Shift</kbd> 是 1ms。</li>
+      <li><strong>双击</strong>某个字的竖线，直接打开逐字编辑器（分词 / 打点 / 均分）。</li>
+    </ul>
+  </li>
+  <li><strong>滚轮</strong> = 横向平移视窗，<strong>Ctrl+滚轮</strong> = 缩放；缩放也能直接输入 px/s。</li>
+</ul>
+<h3>整首歌贴条（进度条）</h3>
+<ul>
+  <li><strong>拖动橙色亮框</strong> = 平移视窗；<strong>按住亮框以外拖动</strong> = 直接拖动播放位置。</li>
+  <li>亮框长度代表「现在能看见整首歌的多少」，只跟缩放有关：<strong>拖动它不会改变长度</strong>，只是左右平移。</li>
+  <li>手动平移后<strong>自动跟随会暂停</strong>（「跟随播放」变淡），播放头走出视窗不再被拉回；点「定位」、点贴条空白处或重新播放即恢复。</li>
+  <li>底部刻度是整首歌的时间轴，白线（带小三角）是当前播放位置。</li>
+</ul>
+<h3>逐字 / 逐词时间</h3>
+<ul>
+  <li>表格每行的「编辑逐字」打开卡片式编辑器：每个字词一张卡（文字 + 秒数 + 「● 当前」）。</li>
+  <li><strong>自动分词</strong>：按演唱分组切卡（英文整词、汉字+送假名成组、长假名串按 3 切），旧时间按位置继承。</li>
+  <li><strong>打点模式</strong>：勾选后播放音频，每到该字发声就按一次 <kbd>Enter</kbd>，打完自动写句尾。</li>
+  <li>「按字数均分」只是给个参考起点；时间倒退的卡会标红，应用前会做校验。</li>
+</ul>
+<h3>加行 / 删行</h3>
+<ul>
+  <li>顶部 <strong>添加行</strong> 和表格每行末尾的 <strong>＋插入</strong> 是同一个功能，都往下方新增一行空白歌词。</li>
+  <li><strong>已经选中某一行</strong>（点过表格行、点过「定位」或在波形上点过该句）时，新行插在它下面。</li>
+  <li><strong>没有选中任何行</strong>时，新行按<strong>当前时间轴</strong>插入：播放头（或贴条拖到的位置）落在哪一句里，就插在那句之后。</li>
+  <li>新行的句首自动取上下两行的中间；两行挨得太近（不足 2 毫秒）时会提示先拉开，不会硬塞一个重叠的行。</li>
+</ul>
+<h3>歌词来源</h3>
+<ul>
+  <li><strong>从曲库导入</strong>：挑 Salt Player 里的歌，歌词和音频一起带进来；没有歌词的会自动联网查。</li>
+  <li>「导入音频」后如果发现没有歌词，会自动按文件名去曲库 / 网易云找，候选列表里手动锚定。</li>
+  <li>「识别与对齐」页：<strong>智能贴唱</strong> —— 一个按钮跑完整首（本机能量分析找人声起点 → 整首一起走一条单调路径 → 先把结果作为可播放的预览叠在波形上，确认贴合了再「应用贴唱」，可撤销）。它只贴整行的句首/句尾，不会伪造时间；逐字的微调在逐字编辑器里用「从音频检测这一行」。</li>
+</ul>
+<h3>表格与波形的联动</h3>
+<ul>
+  <li>播放时表格会<strong>自动滚到当前这句</strong>（取消勾选「跟随播放」可关掉）。</li>
+  <li>鼠标划过表格某一行，波形上会<strong>高亮那一句</strong>；移开鼠标就回到正在播放的句子。
+      播放时随便划过表格不会打断高亮跟随。</li>
+  <li>点表格行、点「▶ 定位」或在波形上点某句，都会把波形滚到那一句并取消鼠标高亮。</li>
+</ul>
+<h3>工程文件（.saltproj）</h3>
+<ul>
+  <li>「保存工程…」生成独有格式 <code>.saltproj</code>，记录歌词、逐字时间、翻译、歌名与时长，并弹出对话框让你选保存位置。</li>
+  <li>「工程内嵌音频」只作用于保存工程：勾选则音频一起打包（文件约音频的 1.35 倍），打开后歌词 + 波形 + 播放都能恢复；不勾选则文件很小，打开后再补同名音频。</li>
+  <li><strong>打开工程</strong>：点顶部「添加 / 打开歌词 · 音频 · 工程」，或把 <code>.saltproj</code> 直接拖进窗口。
+      在「设置 → 工程文件」里关联过之后，<strong>在资源管理器里双击 <code>.saltproj</code> 也会用它打开</strong>
+      （关联只写当前用户的注册表，随时可以在那里撤销）。</li>
+</ul>
+<h3>写入与导出</h3>
+<ul>
+  <li>「导出歌词…」把当前这首歌另存为 LRC / YRC：<strong>只写歌词，不写音频</strong>，并弹出对话框让你选保存位置。</li>
+  <li>「批量导出 ZIP」把队列中通过检查的歌打成一个压缩包。</li>
+  <li>要直接写进歌曲目录并批量处理，用右上角的「联网查找字词」。</li>
+  <li>主歌词逐字时间戳 + 句尾；翻译整行、与主句同句首 —— 这是 Salt Player 的规则。</li>
+</ul>
+</div>
+<div class="toolbar"><span class="spacer"></span><button class="button" id="closeHelp">知道了</button></div></dialog>
+
+<footer>波形交互为原创设计 · 可选 HeartTranscriptor / faster-whisper · 核心独立实现 · 自动翻译未接入<a class="debugLink" href="/debug.html" title="仅本机可用，需要调试密码">调试</a><a class="debugLink" href="#" id="exitApp">退出</a></footer>
+<dialog id="projectDialog" class="projectBox">
+  <h2>工程的保存位置</h2>
+  <p class="hint">每导入一个音频 / 歌词文件，就会在下面这个文件夹里自动建一个工程
+    （<code>&lt;时间戳&gt;-&lt;歌名&gt;\project.saltproj</code>），编辑过程随时写进去。
+    退出时会问你两次：这些工程要<strong>保留</strong>还是<strong>删掉</strong>。</p>
+  <label class="inline projectPathRow">文件夹
+    <input id="projectPath" spellcheck="false" placeholder="例如 D:\歌词工程" aria-label="工程的保存位置"></label>
+  <p id="projectState" class="hint" role="status"></p>
+  <div class="toolbar dialogActions">
+    <button id="projectBrowse" title="打开系统的文件夹选择框">浏览…</button>
+    <span class="spacer"></span>
+    <button id="projectLater" title="这次不设：本次会话不会自动建工程，随时可以在「检查与工程」页补上">稍后再说</button>
+    <button class="button" id="projectUse" title="记住这个文件夹，并给已经导入的内容补建工程">用这个文件夹</button>
+  </div>
+</dialog><script>
+// The packaged build has no console, so browser-side failures are forwarded to
+// the backend journal and listed on the debug page instead of vanishing.
+(function () {
+  var sent = 0;
+  function report(message, stack) {
+    if (sent++ > 20) return;
+    var body = JSON.stringify({message: message, stack: String(stack || '').slice(0, 2000), source: location.pathname});
+    fetch('/api/debug/client-error', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: body}).catch(function () {});
+  }
+  window.addEventListener('error', function (event) {
+    if (event.target && event.target !== window && event.target.src) { report('资源加载失败 ' + event.target.src, ''); return; }
+    report(event.message || '未知脚本错误', event.error && event.error.stack);
+  }, true);
+  window.addEventListener('unhandledrejection', function (event) {
+    var reason = event.reason;
+    report((reason && reason.message) || String(reason), reason && reason.stack);
+  });
+})();
+</script>
+<script src="/trace.js"></script><script src="/theme.js"></script><script src="/common.js"></script><script src="/notify.js"></script><script src="/document.js"></script><script src="/audio-tools.js"></script><script src="/debug-panel.js"></script><script src="/splitter.js"></script><script src="/waveform.js"></script><script src="/projects.js"></script><script src="/history.js"></script><script src="/studio.js"></script></body></html>
